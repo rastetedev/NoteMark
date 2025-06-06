@@ -51,7 +51,8 @@ fun RegistrationForm(
         Spacer(Modifier.height(16.dp))
 
         NoteMarkPasswordTextField(
-            state = state.password,
+            value = state.password,
+            onValueChange = onPasswordChange,
             title = stringResource(R.string.password_label),
             hint = stringResource(R.string.password_placeholder),
             isPasswordVisible = state.isPasswordVisible,
@@ -62,7 +63,8 @@ fun RegistrationForm(
         Spacer(Modifier.height(16.dp))
 
         NoteMarkPasswordTextField(
-            state = state.passwordConfirmation,
+            value = state.passwordConfirmation,
+            onValueChange = onPasswordConfirmationChange,
             title = stringResource(R.string.password_confirmation_label),
             hint = stringResource(R.string.password_placeholder),
             isPasswordVisible = state.isPasswordConfirmationVisible,

@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,8 +32,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.raulastete.notemark.presentation.designsystem.core.NoteMarkTheme
@@ -44,7 +50,10 @@ fun NoteMarkTextField(
     title: String,
     error: String? = null,
     keyboardType: KeyboardType = KeyboardType.Text,
-    additionalInfo: String? = null
+    additionalInfo: String? = null,
+    endIcon: ImageVector? = null,
+    hideText: Boolean = false,
+    onClickEndIcon: () -> Unit = { } // Default to no-op if no icon is provided
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
@@ -96,10 +105,12 @@ fun NoteMarkTextField(
                     color = animatedBorderColor,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .padding(horizontal = 16.dp, vertical = if (endIcon != null) 0.dp else 12.dp)
                 .onFocusChanged {
                     isFocused = it.isFocused
                 },
+            visualTransformation = if (hideText) PasswordVisualTransformation(mask = '*')
+            else VisualTransformation.None,
             decorationBox = { innerBox ->
                 Row(
                     modifier = Modifier
@@ -120,21 +131,41 @@ fun NoteMarkTextField(
                         }
                         innerBox()
                     }
+                    endIcon?.let {
+                        IconButton(onClick = onClickEndIcon) {
+                            Icon(
+                                imageVector = endIcon,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
                 }
             }
         )
-        if (error != null && isFocused.not()) {
-            Text(
-                text = error,
-                color = MaterialTheme.colorScheme.error,
-                style = MaterialTheme.typography.bodySmall
-            )
-        } else if (additionalInfo != null && isFocused) {
-            Text(
-                text = additionalInfo,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodySmall
-            )
+
+        Spacer(modifier = Modifier.height(7.dp))
+
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
+            contentAlignment = Alignment.CenterStart
+        ) {
+            if (error != null && isFocused.not()) {
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            } else if (additionalInfo != null && isFocused) {
+                Text(
+                    text = additionalInfo,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
         }
 
     }
@@ -145,14 +176,16 @@ fun NoteMarkTextField(
 @Composable
 private fun NoteMarkTextFieldPreview() {
     NoteMarkTheme {
-        NoteMarkTextField(
-            value = "",
-            onValueChange = {},
-            hint = "example@test.com",
-            title = "Email",
-            additionalInfo = "Must be valid email",
-            modifier = Modifier
-                .fillMaxWidth()
-        )
+        Column {
+            NoteMarkTextField(
+                value = "",
+                onValueChange = {},
+                hint = "example@test.com",
+                title = "Email",
+                additionalInfo = "Must be valid email",
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
     }
 }

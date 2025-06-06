@@ -37,7 +37,9 @@ fun LoginRoot(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val padding = when (deviceMode) {
-        DeviceMode.PhonePortrait, DeviceMode.PhoneLandscape -> PaddingValues(horizontal = 16.dp, vertical = 32.dp)
+        DeviceMode.PhonePortrait, DeviceMode.PhoneLandscape ->
+            PaddingValues(horizontal = 16.dp, vertical = 32.dp
+        )
         DeviceMode.TabletPortrait -> PaddingValues(horizontal = 120.dp, vertical = 100.dp)
         DeviceMode.TabletLandscape -> PaddingValues(horizontal = 100.dp, vertical = 100.dp)
     }
@@ -115,8 +117,7 @@ fun LoginScreenPortrait(
 
         LoginForm(
             modifier = Modifier.fillMaxWidth(),
-            email = state.email,
-            password = state.password,
+            state = state,
             onEmailChange = onEmailChange,
             onClickLogin = onClickLogin,
             onClickDontHaveAccount = navigateToRegistration
@@ -155,8 +156,7 @@ fun LoginScreenLandscape(
                 .weight(0.5f)
                 .padding(end = 40.dp)
                 .verticalScroll(rememberScrollState()),
-            email = state.email,
-            password = state.password,
+            state = state,
             onEmailChange = onEmailChange,
             onClickLogin = onClickLogin,
             onClickDontHaveAccount = navigateToRegistration

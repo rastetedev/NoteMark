@@ -1,6 +1,5 @@
 package com.raulastete.notemark.presentation.screens.registration
 
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.raulastete.notemark.R
@@ -35,7 +34,7 @@ class RegistrationViewModel(
                     val result = authorizationRepository.registration(
                         state.value.username,
                         state.value.email,
-                        state.value.password.text.toString()
+                        state.value.password
                     )
 
                     _state.update { it.copy(isLoading = false, isButtonEnabled = true) }
@@ -88,7 +87,7 @@ class RegistrationViewModel(
             is RegistrationAction.PasswordChange -> {
                 _state.update {
                     it.copy(
-                        password = TextFieldState(initialText = action.password),
+                        password = action.password,
                         passwordError = when {
                             userDataValidator.isValidPassword(action.password).isValid ->
                                 UiText.StringResource(R.string.error_password_invalid)
@@ -103,7 +102,7 @@ class RegistrationViewModel(
             is RegistrationAction.PasswordConfirmationChange -> {
                 _state.update {
                     it.copy(
-                        passwordConfirmation = TextFieldState(action.passwordConfirmation),
+                        passwordConfirmation = action.passwordConfirmation,
                         passwordConfirmationError = when {
                             action.passwordConfirmation != it.password.toString() ->
                                 UiText.StringResource(R.string.error_password_confirmation_mismatch)
@@ -126,8 +125,8 @@ class RegistrationViewModel(
                         it.passwordConfirmationError == null &&
                         it.username.isNotBlank() &&
                         it.email.isNotBlank() &&
-                        it.password.text.isNotBlank() &&
-                        it.passwordConfirmation.text.isNotBlank()
+                        it.password.isNotBlank() &&
+                        it.passwordConfirmation.isNotBlank()
             )
         }
     }

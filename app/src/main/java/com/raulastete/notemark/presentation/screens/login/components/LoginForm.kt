@@ -1,11 +1,9 @@
 package com.raulastete.notemark.presentation.screens.login.components
 
-import android.R.attr.password
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -15,19 +13,20 @@ import com.raulastete.notemark.presentation.designsystem.components.NoteMarkPass
 import com.raulastete.notemark.presentation.designsystem.components.NoteMarkTextField
 import com.raulastete.notemark.presentation.designsystem.components.PrimaryButton
 import com.raulastete.notemark.presentation.designsystem.components.TertiaryButton
+import com.raulastete.notemark.presentation.screens.login.LoginState
 
 @Composable
 fun LoginForm(
     modifier: Modifier = Modifier,
-    email: String,
-    password: TextFieldState,
+    state: LoginState,
     onEmailChange: (String) -> Unit = {},
+    onPasswordChange: (String) -> Unit = {},
     onClickLogin: () -> Unit,
     onClickDontHaveAccount: () -> Unit,
 ) {
     Column(modifier = modifier) {
         NoteMarkTextField(
-            value = email,
+            value = state.email,
             onValueChange = onEmailChange,
             title = stringResource(R.string.email_label),
             hint = stringResource(R.string.email_placeholder),
@@ -36,8 +35,9 @@ fun LoginForm(
         Spacer(Modifier.height(16.dp))
 
         NoteMarkPasswordTextField(
-            state = password,
-            isPasswordVisible = false,
+            value = state.password,
+            onValueChange = onPasswordChange,
+            isPasswordVisible = state.isPasswordVisible,
             onTogglePasswordVisibility = {},
             title = stringResource(R.string.password_label),
             hint = stringResource(R.string.password_placeholder),
