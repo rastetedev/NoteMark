@@ -13,5 +13,15 @@ class NoteMarkApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        startKoin {
+            androidLogger()
+            androidContext(this@NoteMarkApp)
+            modules(
+                appModule,
+                loginModule,
+                registrationModule,
+                dataModule
+            )
+        }
     }
 }
