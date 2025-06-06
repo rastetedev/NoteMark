@@ -29,5 +29,7 @@
     <string name="registration_success_message">Successfully registered! You can now log in.</string>
     <string name="username_info">Use between 3 and 20 characters for your username.</string>
     <string name="password_info">Use 8+ characters with a number or symbol for better security.</string>
+    <string name="login_success_message">Successfully logged in</string>
+    <string name="login_error_message">Successfully failed</string>
 
 </resources>

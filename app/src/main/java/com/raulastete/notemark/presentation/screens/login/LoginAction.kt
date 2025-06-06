@@ -1,7 +1,8 @@
 package com.raulastete.notemark.presentation.screens.login
 
 sealed interface LoginAction {
-    data class OnEmailChange(val email: String) : LoginAction
-    data class OnPasswordChange(val password: String) : LoginAction
-    data object OnClickLogin : LoginAction
+    data class EmailChange(val email: String) : LoginAction
+    data class PasswordChange(val password: String) : LoginAction
+    data object TogglePasswordVisibility : LoginAction
+    data object ClickLogin : LoginAction
 }

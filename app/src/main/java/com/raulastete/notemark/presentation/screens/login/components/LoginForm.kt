@@ -19,8 +19,9 @@ import com.raulastete.notemark.presentation.screens.login.LoginState
 fun LoginForm(
     modifier: Modifier = Modifier,
     state: LoginState,
-    onEmailChange: (String) -> Unit = {},
-    onPasswordChange: (String) -> Unit = {},
+    onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
     onClickLogin: () -> Unit,
     onClickDontHaveAccount: () -> Unit,
 ) {
@@ -38,7 +39,7 @@ fun LoginForm(
             value = state.password,
             onValueChange = onPasswordChange,
             isPasswordVisible = state.isPasswordVisible,
-            onTogglePasswordVisibility = {},
+            onTogglePasswordVisibility = onTogglePasswordVisibility,
             title = stringResource(R.string.password_label),
             hint = stringResource(R.string.password_placeholder),
         )
@@ -49,7 +50,8 @@ fun LoginForm(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.log_in_button),
             onClick = onClickLogin,
-            enabled = false
+            isLoading = state.isLoading,
+            enabled = state.isButtonEnabled
         )
 
         Spacer(Modifier.height(24.dp))

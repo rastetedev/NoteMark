@@ -17,15 +17,28 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.raulastete.notemark.R
+import com.raulastete.notemark.presentation.designsystem.components.NoteMarkMessageSnackbar
 import com.raulastete.notemark.presentation.screens.login.components.LoginForm
 import com.raulastete.notemark.presentation.screens.login.components.LoginScreenHeader
 import com.raulastete.notemark.presentation.utils.DeviceMode
+import com.raulastete.notemark.presentation.utils.ObserveAsEvents
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -36,10 +49,43 @@ fun LoginRoot(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            LoginEvent.OnLoginFail -> {
+                keyboardController?.hide()
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.login_error_message),
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true
+                    )
+                }
+            }
+
+            LoginEvent.OnLoginSuccess -> {
+                keyboardController?.hide()
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.login_success_message),
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true
+                    )
+                }
+            }
+        }
+    }
+
     val padding = when (deviceMode) {
         DeviceMode.PhonePortrait, DeviceMode.PhoneLandscape ->
-            PaddingValues(horizontal = 16.dp, vertical = 32.dp
-        )
+            PaddingValues(
+                horizontal = 16.dp, vertical = 32.dp
+            )
+
         DeviceMode.TabletPortrait -> PaddingValues(horizontal = 120.dp, vertical = 100.dp)
         DeviceMode.TabletLandscape -> PaddingValues(horizontal = 100.dp, vertical = 100.dp)
     }
@@ -62,10 +108,16 @@ fun LoginRoot(
                     paddingValues = padding,
                     textAlign = textAlign,
                     onEmailChange = {
-                        viewModel.onAction(LoginAction.OnEmailChange(it))
+                        viewModel.onAction(LoginAction.EmailChange(it))
+                    },
+                    onPasswordChange = {
+                        viewModel.onAction(LoginAction.PasswordChange(it))
+                    },
+                    onTogglePasswordVisibility = {
+                        viewModel.onAction(LoginAction.TogglePasswordVisibility)
                     },
                     onClickLogin = {
-                        viewModel.onAction(LoginAction.OnClickLogin)
+                        viewModel.onAction(LoginAction.ClickLogin)
                     },
                     navigateToRegistration = navigateToRegistration
                 )
@@ -77,15 +129,36 @@ fun LoginRoot(
                     paddingValues = padding,
                     textAlign = textAlign,
                     onEmailChange = {
-                        viewModel.onAction(LoginAction.OnEmailChange(it))
+                        viewModel.onAction(LoginAction.EmailChange(it))
+                    },
+                    onPasswordChange = {
+                        viewModel.onAction(LoginAction.PasswordChange(it))
+                    },
+                    onTogglePasswordVisibility = {
+                        viewModel.onAction(LoginAction.TogglePasswordVisibility)
                     },
                     onClickLogin = {
-                        viewModel.onAction(LoginAction.OnClickLogin)
+                        viewModel.onAction(LoginAction.ClickLogin)
                     },
                     navigateToRegistration = navigateToRegistration
                 )
             }
         }
+
+        SnackbarHost(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            hostState = snackbarHostState,
+            snackbar = { snackbarData ->
+                val isErrorMessage =
+                    snackbarData.visuals.message != stringResource(id = R.string.login_success_message)
+
+                NoteMarkMessageSnackbar(
+                    snackbarData = snackbarData,
+                    isErrorMessage = isErrorMessage,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            },
+        )
     }
 }
 
@@ -95,6 +168,8 @@ fun LoginScreenPortrait(
     paddingValues: PaddingValues,
     textAlign: TextAlign,
     onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
     onClickLogin: () -> Unit,
     navigateToRegistration: () -> Unit
 ) {
@@ -119,6 +194,8 @@ fun LoginScreenPortrait(
             modifier = Modifier.fillMaxWidth(),
             state = state,
             onEmailChange = onEmailChange,
+            onPasswordChange = onPasswordChange,
+            onTogglePasswordVisibility = onTogglePasswordVisibility,
             onClickLogin = onClickLogin,
             onClickDontHaveAccount = navigateToRegistration
         )
@@ -131,6 +208,8 @@ fun LoginScreenLandscape(
     paddingValues: PaddingValues,
     textAlign: TextAlign,
     onEmailChange: (String) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
     onClickLogin: () -> Unit,
     navigateToRegistration: () -> Unit
 ) {
@@ -158,6 +237,8 @@ fun LoginScreenLandscape(
                 .verticalScroll(rememberScrollState()),
             state = state,
             onEmailChange = onEmailChange,
+            onPasswordChange = onPasswordChange,
+            onTogglePasswordVisibility = onTogglePasswordVisibility,
             onClickLogin = onClickLogin,
             onClickDontHaveAccount = navigateToRegistration
         )
