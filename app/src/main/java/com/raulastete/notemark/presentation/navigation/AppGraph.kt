@@ -9,6 +9,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.raulastete.notemark.presentation.screens.landing.LandingRoot
+import com.raulastete.notemark.presentation.screens.login.LoginRoot
+import com.raulastete.notemark.presentation.screens.registration.RegistrationRoot
 import com.raulastete.notemark.presentation.utils.DeviceMode
 
 @Composable
@@ -42,12 +45,41 @@ fun AppGraph(
 
     NavHost(navController = navController, startDestination = Destination.Landing) {
         composable<Destination.Landing> {
+            LandingRoot(
+                deviceMode = deviceMode,
+                navigateToLogin = {
+                    navController.navigate(Destination.Login) {
+                        popUpTo(Destination.Landing) { inclusive = true }
+                    }
+                },
+                navigateToRegistration = {
+                    navController.navigate(Destination.Registration) {
+                        popUpTo(Destination.Landing) { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable<Destination.Login> {
+            LoginRoot(
+                deviceMode = deviceMode,
+                navigateToRegistration = {
+                    navController.navigate(Destination.Registration) {
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
 
         composable<Destination.Registration> {
+            RegistrationRoot(
+                deviceMode = deviceMode,
+                navigateToLogin = {
+                    navController.navigate(Destination.Login) {
+                        launchSingleTop = true
+                    }
+                }
+            )
         }
     }
 }

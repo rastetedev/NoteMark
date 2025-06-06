@@ -23,6 +23,10 @@ class MainActivity : ComponentActivity() {
             val heightSizeClass = calculateWindowSizeClass(this).heightSizeClass
 
             NoteMarkTheme {
+                AppGraph(
+                    windowWidthSizeClass = widthSizeClass,
+                    windowHeightSizeClass = heightSizeClass
+                )
             }
         }
     }
