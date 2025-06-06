@@ -65,6 +65,7 @@ fun AppGraph(
                 deviceMode = deviceMode,
                 navigateToRegistration = {
                     navController.navigate(Destination.Registration) {
+                        popUpTo(Destination.Registration) { inclusive = true }
                         launchSingleTop = true
                     }
                 }
@@ -76,6 +77,7 @@ fun AppGraph(
                 deviceMode = deviceMode,
                 navigateToLogin = {
                     navController.navigate(Destination.Login) {
+                        popUpTo(Destination.Login) { inclusive = true }
                         launchSingleTop = true
                     }
                 }
