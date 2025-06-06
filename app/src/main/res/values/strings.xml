@@ -27,5 +27,7 @@
     <string name="error_password_confirmation_mismatch">Passwords do not match</string>
     <string name="registration_error_message">Failed to register. Please check your details and try again.</string>
     <string name="registration_success_message">Successfully registered! You can now log in.</string>
+    <string name="username_info">Use between 3 and 20 characters for your username.</string>
+    <string name="password_info">Use 8+ characters with a number or symbol for better security.</string>
 
 </resources>

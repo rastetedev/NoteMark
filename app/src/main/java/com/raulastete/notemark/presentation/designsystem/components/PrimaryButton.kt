@@ -1,9 +1,13 @@
 package com.raulastete.notemark.presentation.designsystem.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,6 +21,7 @@ fun PrimaryButton(
     modifier: Modifier = Modifier,
     text: String,
     onClick: () -> Unit,
+    isLoading: Boolean = false,
     enabled: Boolean = true
 ) {
     Button(
@@ -26,10 +31,21 @@ fun PrimaryButton(
         enabled = enabled,
         contentPadding = PaddingValues(12.dp)
     ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleSmall
-        )
+        AnimatedContent(isLoading) { isLoading ->
+            if (isLoading) {
+                CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    modifier = Modifier.size(20.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
     }
 }
 
@@ -38,8 +54,19 @@ fun PrimaryButton(
 fun PrimaryButtonPreview() {
     NoteMarkTheme {
         Column {
-            PrimaryButton(text = "Continue", onClick = {})
-            PrimaryButton(text = "Continue", onClick = {}, enabled = false)
+            PrimaryButton(
+                text = "Continue",
+                isLoading = true,
+                onClick = {},
+                modifier = Modifier.fillMaxWidth()
+            )
+            PrimaryButton(
+                text = "Continue",
+                isLoading = false,
+                onClick = {},
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

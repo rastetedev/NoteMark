@@ -37,6 +37,7 @@ fun RegistrationForm(
             onValueChange = onUsernameChange,
             title = stringResource(R.string.username_label),
             hint = stringResource(R.string.username_placeholder),
+            additionalInfo = stringResource(R.string.username_info),
             error = state.usernameError?.asString(context)
         )
 
@@ -59,6 +60,7 @@ fun RegistrationForm(
             hint = stringResource(R.string.password_placeholder),
             isPasswordVisible = state.isPasswordVisible,
             onTogglePasswordVisibility = onTogglePasswordVisibility,
+            additionalInfo = stringResource(R.string.password_info),
             error = state.passwordError?.asString(context)
         )
 
@@ -80,6 +82,7 @@ fun RegistrationForm(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.create_account_button),
             onClick = onClickRegistration,
+            isLoading = state.isLoading,
             enabled = state.isButtonEnabled
         )
 
