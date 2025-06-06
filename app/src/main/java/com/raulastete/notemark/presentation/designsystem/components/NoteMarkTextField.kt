@@ -53,7 +53,7 @@ fun NoteMarkTextField(
     additionalInfo: String? = null,
     endIcon: ImageVector? = null,
     hideText: Boolean = false,
-    onClickEndIcon: () -> Unit = { } // Default to no-op if no icon is provided
+    onClickEndIcon: () -> Unit = { }
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
@@ -67,12 +67,12 @@ fun NoteMarkTextField(
         label = "Background color"
     )
     val animatedBorderColor by animateColorAsState(
-        targetValue = if (isFocused) {
-            MaterialTheme.colorScheme.onSurfaceVariant
-        } else {
-            Color.Transparent
+        targetValue = when {
+            isFocused -> MaterialTheme.colorScheme.onSurfaceVariant
+            error != null -> MaterialTheme.colorScheme.error
+            else -> Color.Transparent
         },
-        animationSpec = tween(200, 0, LinearEasing),
+        animationSpec = tween(100, 0, LinearEasing),
         label = "Border color"
     )
 

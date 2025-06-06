@@ -24,6 +24,8 @@ fun RegistrationForm(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onPasswordConfirmationChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onTogglePasswordConfirmationVisibility: () -> Unit,
     onClickRegistration: () -> Unit = {},
     onClickLogin: () -> Unit
 ) {
@@ -56,7 +58,7 @@ fun RegistrationForm(
             title = stringResource(R.string.password_label),
             hint = stringResource(R.string.password_placeholder),
             isPasswordVisible = state.isPasswordVisible,
-            onTogglePasswordVisibility = {},
+            onTogglePasswordVisibility = onTogglePasswordVisibility,
             error = state.passwordError?.asString(context)
         )
 
@@ -68,7 +70,7 @@ fun RegistrationForm(
             title = stringResource(R.string.password_confirmation_label),
             hint = stringResource(R.string.password_placeholder),
             isPasswordVisible = state.isPasswordConfirmationVisible,
-            onTogglePasswordVisibility = {},
+            onTogglePasswordVisibility = onTogglePasswordConfirmationVisibility,
             error = state.passwordConfirmationError?.asString(context)
         )
 
@@ -78,7 +80,7 @@ fun RegistrationForm(
             modifier = Modifier.fillMaxWidth(),
             text = stringResource(R.string.create_account_button),
             onClick = onClickRegistration,
-            enabled = false
+            enabled = state.isButtonEnabled
         )
 
         Spacer(Modifier.height(24.dp))

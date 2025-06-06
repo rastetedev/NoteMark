@@ -119,6 +119,12 @@ fun RegistrationRoot(
                     onPasswordConfirmationChange = {
                         viewModel.onAction(RegistrationAction.PasswordConfirmationChange(it))
                     },
+                    onTogglePasswordVisibility = {
+                        viewModel.onAction(RegistrationAction.TogglePasswordVisibility)
+                    },
+                    onTogglePasswordConfirmationVisibility = {
+                        viewModel.onAction(RegistrationAction.TogglePasswordConfirmationVisibility)
+                    },
                     onClickRegistration = {
                         viewModel.onAction(RegistrationAction.ClickRegistration)
                     },
@@ -142,6 +148,12 @@ fun RegistrationRoot(
                     },
                     onPasswordConfirmationChange = {
                         viewModel.onAction(RegistrationAction.PasswordConfirmationChange(it))
+                    },
+                    onTogglePasswordVisibility = {
+                        viewModel.onAction(RegistrationAction.TogglePasswordVisibility)
+                    },
+                    onTogglePasswordConfirmationVisibility = {
+                        viewModel.onAction(RegistrationAction.TogglePasswordConfirmationVisibility)
                     },
                     onClickRegistration = {
                         viewModel.onAction(RegistrationAction.ClickRegistration)
@@ -177,6 +189,8 @@ fun RegistrationScreenPortrait(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onPasswordConfirmationChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onTogglePasswordConfirmationVisibility: () -> Unit,
     onClickRegistration: () -> Unit,
     onClickLogin: () -> Unit
 ) {
@@ -205,6 +219,8 @@ fun RegistrationScreenPortrait(
             onPasswordChange = onPasswordChange,
             onPasswordConfirmationChange = onPasswordConfirmationChange,
             onClickRegistration = onClickRegistration,
+            onTogglePasswordVisibility = onTogglePasswordVisibility,
+            onTogglePasswordConfirmationVisibility = onTogglePasswordConfirmationVisibility,
             onClickLogin = onClickLogin
         )
     }
@@ -219,6 +235,8 @@ fun RegistrationScreenLandscape(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onPasswordConfirmationChange: (String) -> Unit,
+    onTogglePasswordVisibility: () -> Unit,
+    onTogglePasswordConfirmationVisibility: () -> Unit,
     onClickRegistration: () -> Unit,
     onClickLogin: () -> Unit
 ) {
@@ -248,6 +266,8 @@ fun RegistrationScreenLandscape(
             onEmailChange = onEmailChange,
             onPasswordChange = onPasswordChange,
             onPasswordConfirmationChange = onPasswordConfirmationChange,
+            onTogglePasswordVisibility = onTogglePasswordVisibility,
+            onTogglePasswordConfirmationVisibility = onTogglePasswordConfirmationVisibility,
             onClickRegistration = onClickRegistration,
             onClickLogin = onClickLogin
         )
