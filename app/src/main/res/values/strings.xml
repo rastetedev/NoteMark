@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">NoteMark</string>
+    <string name="get_started_button">Get Started</string>
+    <string name="log_in_button">Log In</string>
+    <string name="landing_subtitle">Capture your thoughts and ideas</string>
+    <string name="landing_title">Your Own Collection of Notes</string>
+    <string name="login_screen_title">Log In</string>
+    <string name="login_screen_subtitle">Capture your thoughts and ideas.</string>
+    <string name="email_label">Email</string>
+    <string name="email_placeholder">john.doe@example.com</string>
+    <string name="password_label">Password</string>
+    <string name="password_placeholder">Password</string>
+    <string name="dont_have_account_button">Don\'t have an account?</string>
+    <string name="registration_screen_title">Create account</string>
+    <string name="registration_screen_subtitle">Capture your thoughts and ideas.</string>
+    <string name="username_label">Username</string>
+    <string name="username_placeholder">John.doe</string>
+    <string name="password_confirmation_label">Repeat password</string>
+    <string name="create_account_button">Create account</string>
+    <string name="already_have_account_button">Already have an account?</string>
+    <string name="hide_passoword">Hide password</string>
+    <string name="show_password">Show password</string>
+
+</resources>

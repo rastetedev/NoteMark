@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SplashScreen.NoteMark" parent="Theme.SplashScreen">
+
+        <item name="windowSplashScreenBackground">@color/purple_brand</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/notemark_splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.NoteMark</item>
+    </style>
+</resources>
