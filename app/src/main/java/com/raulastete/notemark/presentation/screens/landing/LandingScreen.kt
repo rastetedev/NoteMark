@@ -27,30 +27,71 @@ fun LandingRoot(
     navigateToRegistration: () -> Unit
 ) {
 
+    val cardCredentialsModifier =
+        when (deviceMode) {
+            DeviceMode.TabletPortrait -> Modifier.padding(horizontal = 60.dp)
+            else -> Modifier
+        }
+
+    val paddingValues =
+        when (deviceMode) {
+            DeviceMode.PhonePortrait -> PaddingValues(
+                vertical = 32.dp,
+                horizontal = 16.dp
+            )
+
+            DeviceMode.TabletPortrait -> PaddingValues(48.dp)
+
+            else -> PaddingValues(
+                start = 60.dp,
+                end = 40.dp,
+                top = 40.dp,
+                bottom = 40.dp
+            )
+        }
+
+    val cardCorners =
+        when (deviceMode) {
+            DeviceMode.TabletPortrait -> CardCorners(
+                topStart = 24.dp,
+                topEnd = 24.dp
+            )
+
+            DeviceMode.TabletLandscape -> CardCorners(
+                topStart = 24.dp,
+                bottomStart = 24.dp
+            )
+
+            else -> CardCorners(
+                topStart = 20.dp,
+                topEnd = 20.dp
+            )
+        }
+
+    val textAlign =
+        when (deviceMode) {
+            DeviceMode.TabletPortrait, DeviceMode.TabletLandscape -> TextAlign.Center
+            else -> TextAlign.Start
+        }
+
+
     when (deviceMode) {
-        DeviceMode.PhonePortrait -> {
-            LandingScreenPhonePortrait(
+        DeviceMode.PhonePortrait, DeviceMode.TabletPortrait -> {
+            LandingScreenPortrait(
+                cardCredentialsModifier = cardCredentialsModifier,
+                textAlign = textAlign,
+                cardCorners = cardCorners,
+                paddingValues = paddingValues,
                 navigateToLogin = navigateToLogin,
                 navigateToRegistration = navigateToRegistration
             )
         }
 
-        DeviceMode.PhoneLandscape -> {
-            LandingScreenPhoneLandscape(
-                navigateToLogin = navigateToLogin,
-                navigateToRegistration = navigateToRegistration
-            )
-        }
-
-        DeviceMode.TabletPortrait -> {
-            LandingScreenTabletPortrait(
-                navigateToLogin = navigateToLogin,
-                navigateToRegistration = navigateToRegistration
-            )
-        }
-
-        DeviceMode.TabletLandscape -> {
-            LandingScreenTabletLandscape(
+        DeviceMode.PhoneLandscape, DeviceMode.TabletLandscape -> {
+            LandingScreenLandscape(
+                textAlign = textAlign,
+                cardCorners = cardCorners,
+                paddingValues = paddingValues,
                 navigateToLogin = navigateToLogin,
                 navigateToRegistration = navigateToRegistration
             )
@@ -59,7 +100,11 @@ fun LandingRoot(
 }
 
 @Composable
-private fun LandingScreenPhonePortrait(
+private fun LandingScreenPortrait(
+    cardCredentialsModifier: Modifier = Modifier,
+    textAlign: TextAlign,
+    cardCorners: CardCorners,
+    paddingValues: PaddingValues,
     navigateToLogin: () -> Unit,
     navigateToRegistration: () -> Unit
 ) {
@@ -74,20 +119,24 @@ private fun LandingScreenPhonePortrait(
         )
 
         CardCredentials(
-            modifier = Modifier.align(Alignment.BottomCenter),
-            cardCorners = CardCorners(
-                topStart = 20.dp,
-                topEnd = 20.dp
-            ),
-            paddingValues = PaddingValues(vertical = 32.dp, horizontal = 16.dp),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .then(cardCredentialsModifier),
+            cardCorners = cardCorners,
+            paddingValues = paddingValues,
+            textAlign = textAlign,
             onClickGetStarted = navigateToRegistration,
             onClickLogIn = navigateToLogin
         )
     }
 }
 
+
 @Composable
-private fun LandingScreenPhoneLandscape(
+private fun LandingScreenLandscape(
+    textAlign: TextAlign,
+    cardCorners: CardCorners,
+    paddingValues: PaddingValues,
     navigateToLogin: () -> Unit,
     navigateToRegistration: () -> Unit
 ) {
@@ -106,72 +155,9 @@ private fun LandingScreenPhoneLandscape(
 
         CardCredentials(
             modifier = Modifier.weight(0.5f),
-            cardCorners = CardCorners(
-                topStart = 20.dp,
-                bottomStart = 20.dp
-            ),
-            paddingValues = PaddingValues(start = 60.dp, end = 40.dp, top = 40.dp, bottom = 40.dp),
-            onClickGetStarted = navigateToRegistration,
-            onClickLogIn = navigateToLogin
-        )
-    }
-}
-
-@Composable
-private fun LandingScreenTabletPortrait(
-    navigateToLogin: () -> Unit,
-    navigateToRegistration: () -> Unit
-) {
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-    ) {
-        LandingMainImage(
-            modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.FillWidth
-        )
-
-        CardCredentials(
-            modifier = Modifier.align(Alignment.BottomCenter).padding(horizontal = 60.dp),
-            cardCorners = CardCorners(
-                topStart = 24.dp,
-                topEnd = 24.dp
-            ),
-            paddingValues = PaddingValues(48.dp),
-            textAlignment = TextAlign.Center,
-            onClickGetStarted = navigateToRegistration,
-            onClickLogIn = navigateToLogin
-        )
-    }
-}
-
-@Composable
-private fun LandingScreenTabletLandscape(
-    navigateToLogin: () -> Unit,
-    navigateToRegistration: () -> Unit
-) {
-    Row(
-        Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        LandingMainImage(
-            modifier = Modifier
-                .fillMaxHeight()
-                .weight(0.5f),
-            contentScale = ContentScale.FillHeight
-        )
-
-        CardCredentials(
-            modifier = Modifier.weight(0.4f),
-            cardCorners = CardCorners(
-                topStart = 20.dp,
-                bottomStart = 20.dp
-            ),
-            textAlignment = TextAlign.Center,
-            paddingValues = PaddingValues(start = 60.dp, end = 40.dp, top = 40.dp, bottom = 40.dp),
+            cardCorners = cardCorners,
+            paddingValues = paddingValues,
+            textAlign = textAlign,
             onClickGetStarted = navigateToRegistration,
             onClickLogIn = navigateToLogin
         )

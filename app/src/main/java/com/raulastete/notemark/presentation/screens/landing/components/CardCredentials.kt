@@ -25,7 +25,7 @@ fun CardCredentials(
     modifier: Modifier = Modifier,
     cardCorners: CardCorners,
     paddingValues: PaddingValues = PaddingValues(16.dp),
-    textAlignment: TextAlign = TextAlign.Start,
+    textAlign: TextAlign = TextAlign.Start,
     onClickGetStarted: () -> Unit = {},
     onClickLogIn: () -> Unit = {}
 
@@ -46,7 +46,7 @@ fun CardCredentials(
         Text(
             text =stringResource(R.string.landing_title),
             modifier = Modifier.fillMaxWidth(),
-            textAlign = textAlignment,
+            textAlign = textAlign,
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -56,7 +56,7 @@ fun CardCredentials(
         Text(
             text = stringResource(R.string.landing_subtitle),
             modifier = Modifier.fillMaxWidth(),
-            textAlign = textAlignment,
+            textAlign = textAlign,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             style = MaterialTheme.typography.bodyLarge
         )
