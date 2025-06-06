@@ -1,12 +1,10 @@
 package com.raulastete.notemark.presentation.designsystem.components
 
-import android.R.attr.password
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,7 +20,6 @@ import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -51,51 +48,48 @@ import com.raulastete.notemark.presentation.designsystem.core.NoteMarkTheme
 fun NoteMarkPasswordTextField(
     modifier: Modifier = Modifier,
     state: TextFieldState = rememberTextFieldState(),
+    hint: String,
+    title: String,
     isPasswordVisible: Boolean,
     onTogglePasswordVisibility: () -> Unit,
-    hint: String,
-    title: String? = null,
+    error: String? = null,
+    additionalInfo: String? = null,
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
     val animatedBackgroundColor by animateColorAsState(
         targetValue = if (isFocused) {
-            MaterialTheme.colorScheme.surfaceContainer
+            Color.Transparent
         } else {
             MaterialTheme.colorScheme.surface
         },
-        animationSpec = tween(200, 0, LinearEasing),
-        label = ""
+        animationSpec = tween(100, 0, LinearEasing),
+        label = "Background color"
     )
     val animatedBorderColor by animateColorAsState(
-        targetValue = if (isFocused) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            Color.Transparent
+        targetValue = when {
+            isFocused -> MaterialTheme.colorScheme.onSurfaceVariant
+            error != null -> MaterialTheme.colorScheme.error
+            else -> Color.Transparent
         },
         animationSpec = tween(200, 0, LinearEasing),
-        label = ""
+        label = "Border color"
     )
 
     Column(
         modifier = modifier
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            if (title != null) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
         Spacer(modifier = Modifier.height(4.dp))
         BasicSecureTextField(
             state = state,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
+                color = MaterialTheme.colorScheme.onSurface
+            ),
             textObfuscationMode = if (isPasswordVisible) {
                 TextObfuscationMode.Visible
             } else {
@@ -105,10 +99,7 @@ fun NoteMarkPasswordTextField(
                 keyboardType = KeyboardType.Password,
                 imeAction = ImeAction.Done,
             ),
-            textStyle = MaterialTheme.typography.bodyLarge.copy(
-                color = MaterialTheme.colorScheme.onSurface
-            ),
-            cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             modifier = Modifier
                 .clip(RoundedCornerShape(12.dp))
                 .background(animatedBackgroundColor)
@@ -117,7 +108,7 @@ fun NoteMarkPasswordTextField(
                     color = animatedBorderColor,
                     shape = RoundedCornerShape(12.dp)
                 )
-                .padding(start = 16.dp, end = 12.dp)
+                .padding(horizontal = 16.dp)
                 .onFocusChanged {
                     isFocused = it.isFocused
                 },
@@ -163,7 +154,19 @@ fun NoteMarkPasswordTextField(
                 }
             }
         )
-
+        if (error != null) {
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall
+            )
+        } else if (additionalInfo != null) {
+            Text(
+                text = additionalInfo,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
     }
 
 }
