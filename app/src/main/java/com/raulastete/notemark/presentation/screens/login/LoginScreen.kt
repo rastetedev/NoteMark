@@ -39,7 +39,7 @@ fun LoginRoot(
     val padding = when (deviceMode) {
         DeviceMode.PhonePortrait, DeviceMode.PhoneLandscape -> PaddingValues(horizontal = 16.dp, vertical = 32.dp)
         DeviceMode.TabletPortrait -> PaddingValues(horizontal = 120.dp, vertical = 100.dp)
-        DeviceMode.TabletLandscape -> PaddingValues(horizontal = 100.dp)
+        DeviceMode.TabletLandscape -> PaddingValues(horizontal = 100.dp, vertical = 100.dp)
     }
 
     val textAlign = when (deviceMode) {
