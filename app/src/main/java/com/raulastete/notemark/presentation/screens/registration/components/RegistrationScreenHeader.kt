@@ -16,14 +16,14 @@ import com.raulastete.notemark.R
 @Composable
 fun RegistrationScreenHeader(
     modifier: Modifier = Modifier,
-    textAlignment: TextAlign = TextAlign.Start
+    textAlign: TextAlign = TextAlign.Start
 ) {
     Column(modifier = modifier) {
         Text(
             text = stringResource(R.string.registration_screen_title),
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface,
-            textAlign = textAlignment,
+            textAlign = textAlign,
             style = MaterialTheme.typography.titleLarge
         )
         Spacer(Modifier.height(6.dp))
@@ -32,7 +32,7 @@ fun RegistrationScreenHeader(
             text = stringResource(R.string.registration_screen_subtitle),
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface,
-            textAlign = textAlignment,
+            textAlign = textAlign,
             style = MaterialTheme.typography.bodyLarge
         )
     }

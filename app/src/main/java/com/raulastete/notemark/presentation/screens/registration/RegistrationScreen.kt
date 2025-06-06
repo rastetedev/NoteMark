@@ -3,6 +3,7 @@ package com.raulastete.notemark.presentation.screens.registration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -18,7 +19,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,6 +36,17 @@ fun RegistrationRoot(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val padding = when (deviceMode) {
+        DeviceMode.PhonePortrait, DeviceMode.PhoneLandscape -> PaddingValues(horizontal = 16.dp, vertical = 32.dp)
+        DeviceMode.TabletPortrait -> PaddingValues(horizontal = 120.dp, vertical = 100.dp)
+        DeviceMode.TabletLandscape -> PaddingValues(horizontal = 100.dp, vertical = 100.dp)
+    }
+
+    val textAlign = when (deviceMode) {
+        DeviceMode.PhonePortrait, DeviceMode.PhoneLandscape -> TextAlign.Start
+        else -> TextAlign.Center
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -43,9 +54,11 @@ fun RegistrationRoot(
             .padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp)
     ) {
         when (deviceMode) {
-            DeviceMode.PhonePortrait -> {
-                RegistrationScreenPhonePortrait(
+            DeviceMode.PhonePortrait, DeviceMode.TabletPortrait -> {
+                RegistrationScreenPortrait(
                     state = state,
+                    paddingValues = padding,
+                    textAlign = textAlign,
                     onUsernameChange = {
                         viewModel.onAction(RegistrationAction.OnUsernameChange(it))
                     },
@@ -65,53 +78,11 @@ fun RegistrationRoot(
                 )
             }
 
-            DeviceMode.PhoneLandscape -> {
-                RegistrationScreenPhoneLandscape(
+            DeviceMode.PhoneLandscape, DeviceMode.TabletLandscape -> {
+                RegistrationScreenLandscape(
                     state = state,
-                    onUsernameChange = {
-                        viewModel.onAction(RegistrationAction.OnUsernameChange(it))
-                    },
-                    onEmailChange = {
-                        viewModel.onAction(RegistrationAction.OnEmailChange(it))
-                    },
-                    onPasswordChange = {
-                        viewModel.onAction(RegistrationAction.OnPasswordChange(it))
-                    },
-                    onPasswordConfirmationChange = {
-                        viewModel.onAction(RegistrationAction.OnPasswordConfirmationChange(it))
-                    },
-                    onClickRegistration = {
-                        viewModel.onAction(RegistrationAction.OnClickRegistration)
-                    },
-                    onClickLogin = navigateToLogin
-                )
-            }
-
-            DeviceMode.TabletPortrait -> {
-                RegistrationScreenTabletPortrait(
-                    state = state,
-                    onUsernameChange = {
-                        viewModel.onAction(RegistrationAction.OnUsernameChange(it))
-                    },
-                    onEmailChange = {
-                        viewModel.onAction(RegistrationAction.OnEmailChange(it))
-                    },
-                    onPasswordChange = {
-                        viewModel.onAction(RegistrationAction.OnPasswordChange(it))
-                    },
-                    onPasswordConfirmationChange = {
-                        viewModel.onAction(RegistrationAction.OnPasswordConfirmationChange(it))
-                    },
-                    onClickRegistration = {
-                        viewModel.onAction(RegistrationAction.OnClickRegistration)
-                    },
-                    onClickLogin = navigateToLogin
-                )
-            }
-
-            DeviceMode.TabletLandscape -> {
-                RegistrationScreenTabletLandscape(
-                    state = state,
+                    paddingValues = padding,
+                    textAlign = textAlign,
                     onUsernameChange = {
                         viewModel.onAction(RegistrationAction.OnUsernameChange(it))
                     },
@@ -135,8 +106,10 @@ fun RegistrationRoot(
 }
 
 @Composable
-fun RegistrationScreenPhonePortrait(
+fun RegistrationScreenPortrait(
     state: RegistrationState,
+    paddingValues: PaddingValues,
+    textAlign: TextAlign,
     onUsernameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
@@ -152,10 +125,11 @@ fun RegistrationScreenPhonePortrait(
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
             )
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 32.dp),
+            .padding(paddingValues),
     ) {
         RegistrationScreenHeader(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = textAlign
         )
 
         Spacer(Modifier.height(40.dp))
@@ -177,8 +151,10 @@ fun RegistrationScreenPhonePortrait(
 }
 
 @Composable
-fun RegistrationScreenPhoneLandscape(
+fun RegistrationScreenLandscape(
     state: RegistrationState,
+    paddingValues : PaddingValues,
+    textAlign: TextAlign,
     onUsernameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
@@ -193,101 +169,13 @@ fun RegistrationScreenPhoneLandscape(
                 MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
             )
-            .padding(horizontal = 16.dp, vertical = 32.dp),
-    ) {
-        RegistrationScreenHeader(
-            modifier = Modifier
-                .weight(0.5f)
-                .padding(start = 40.dp)
-        )
-
-        RegistrationForm(
-            modifier = Modifier
-                .weight(0.5f)
-                .padding(end = 40.dp)
-                .verticalScroll(rememberScrollState()),
-            username = state.username,
-            email = state.email,
-            password = state.password,
-            passwordConfirmation = state.passwordConfirmation,
-            onUsernameChange = onUsernameChange,
-            onEmailChange = onEmailChange,
-            onPasswordChange = onPasswordChange,
-            onPasswordConfirmationChange = onPasswordConfirmationChange,
-            onClickRegistration = onClickRegistration,
-            onClickLogin = onClickLogin
-        )
-    }
-}
-
-@Composable
-fun RegistrationScreenTabletPortrait(
-    state: RegistrationState,
-    onUsernameChange: (String) -> Unit,
-    onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onPasswordConfirmationChange: (String) -> Unit,
-    onClickRegistration: () -> Unit,
-    onClickLogin: () -> Unit
-) {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .background(
-                MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-            )
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 120.dp, vertical = 100.dp),
-    ) {
-        RegistrationScreenHeader(
-            modifier = Modifier.fillMaxWidth(),
-            textAlignment = TextAlign.Center
-        )
-
-        Spacer(Modifier.height(40.dp))
-
-        RegistrationForm(
-            modifier = Modifier.fillMaxWidth(),
-            username = state.username,
-            email = state.email,
-            password = state.password,
-            passwordConfirmation = state.passwordConfirmation,
-            onUsernameChange = onUsernameChange,
-            onEmailChange = onEmailChange,
-            onPasswordChange = onPasswordChange,
-            onPasswordConfirmationChange = onPasswordConfirmationChange,
-            onClickRegistration = onClickRegistration,
-            onClickLogin = onClickLogin
-        )
-    }
-}
-
-@Composable
-fun RegistrationScreenTabletLandscape(
-    state: RegistrationState,
-    onUsernameChange: (String) -> Unit,
-    onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit,
-    onPasswordConfirmationChange: (String) -> Unit,
-    onClickRegistration: () -> Unit,
-    onClickLogin: () -> Unit
-) {
-    Row(
-        Modifier
-            .fillMaxSize()
-            .background(
-                MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-            )
-            .padding(horizontal = 100.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .padding(paddingValues),
     ) {
         RegistrationScreenHeader(
             modifier = Modifier
                 .weight(0.5f)
                 .padding(start = 40.dp),
-            textAlignment = TextAlign.Center
+            textAlign = textAlign
         )
 
         RegistrationForm(
