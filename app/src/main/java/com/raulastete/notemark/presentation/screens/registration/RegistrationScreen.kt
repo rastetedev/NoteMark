@@ -17,15 +17,28 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.raulastete.notemark.R
+import com.raulastete.notemark.presentation.designsystem.components.NoteMarkMessageSnackbar
 import com.raulastete.notemark.presentation.screens.registration.components.RegistrationForm
 import com.raulastete.notemark.presentation.screens.registration.components.RegistrationScreenHeader
 import com.raulastete.notemark.presentation.utils.DeviceMode
+import com.raulastete.notemark.presentation.utils.ObserveAsEvents
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -36,8 +49,43 @@ fun RegistrationRoot(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            RegistrationEvent.OnRegistrationFail -> {
+                keyboardController?.hide()
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.registration_error_message),
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true
+                    )
+                }
+            }
+
+            RegistrationEvent.OnRegistrationSuccess -> {
+                keyboardController?.hide()
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.registration_success_message),
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true
+                    )
+                }
+            }
+        }
+    }
+
     val padding = when (deviceMode) {
-        DeviceMode.PhonePortrait, DeviceMode.PhoneLandscape -> PaddingValues(horizontal = 16.dp, vertical = 32.dp)
+        DeviceMode.PhonePortrait, DeviceMode.PhoneLandscape -> PaddingValues(
+            horizontal = 16.dp,
+            vertical = 32.dp
+        )
+
         DeviceMode.TabletPortrait -> PaddingValues(horizontal = 120.dp, vertical = 100.dp)
         DeviceMode.TabletLandscape -> PaddingValues(horizontal = 100.dp, vertical = 100.dp)
     }
@@ -60,19 +108,19 @@ fun RegistrationRoot(
                     paddingValues = padding,
                     textAlign = textAlign,
                     onUsernameChange = {
-                        viewModel.onAction(RegistrationAction.OnUsernameChange(it))
+                        viewModel.onAction(RegistrationAction.UsernameChange(it))
                     },
                     onEmailChange = {
-                        viewModel.onAction(RegistrationAction.OnEmailChange(it))
+                        viewModel.onAction(RegistrationAction.EmailChange(it))
                     },
                     onPasswordChange = {
-                        viewModel.onAction(RegistrationAction.OnPasswordChange(it))
+                        viewModel.onAction(RegistrationAction.PasswordChange(it))
                     },
                     onPasswordConfirmationChange = {
-                        viewModel.onAction(RegistrationAction.OnPasswordConfirmationChange(it))
+                        viewModel.onAction(RegistrationAction.PasswordConfirmationChange(it))
                     },
                     onClickRegistration = {
-                        viewModel.onAction(RegistrationAction.OnClickRegistration)
+                        viewModel.onAction(RegistrationAction.ClickRegistration)
                     },
                     onClickLogin = navigateToLogin
                 )
@@ -84,24 +132,39 @@ fun RegistrationRoot(
                     paddingValues = padding,
                     textAlign = textAlign,
                     onUsernameChange = {
-                        viewModel.onAction(RegistrationAction.OnUsernameChange(it))
+                        viewModel.onAction(RegistrationAction.UsernameChange(it))
                     },
                     onEmailChange = {
-                        viewModel.onAction(RegistrationAction.OnEmailChange(it))
+                        viewModel.onAction(RegistrationAction.EmailChange(it))
                     },
                     onPasswordChange = {
-                        viewModel.onAction(RegistrationAction.OnPasswordChange(it))
+                        viewModel.onAction(RegistrationAction.PasswordChange(it))
                     },
                     onPasswordConfirmationChange = {
-                        viewModel.onAction(RegistrationAction.OnPasswordConfirmationChange(it))
+                        viewModel.onAction(RegistrationAction.PasswordConfirmationChange(it))
                     },
                     onClickRegistration = {
-                        viewModel.onAction(RegistrationAction.OnClickRegistration)
+                        viewModel.onAction(RegistrationAction.ClickRegistration)
                     },
                     onClickLogin = navigateToLogin
                 )
             }
         }
+
+        SnackbarHost(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            hostState = snackbarHostState,
+            snackbar = { snackbarData ->
+                val isErrorMessage =
+                    snackbarData.visuals.message != stringResource(id = R.string.registration_success_message)
+
+                NoteMarkMessageSnackbar(
+                    snackbarData = snackbarData,
+                    isErrorMessage = isErrorMessage,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+            },
+        )
     }
 }
 
@@ -136,10 +199,7 @@ fun RegistrationScreenPortrait(
 
         RegistrationForm(
             modifier = Modifier.fillMaxWidth(),
-            username = state.username,
-            email = state.email,
-            password = state.password,
-            passwordConfirmation = state.passwordConfirmation,
+            state = state,
             onUsernameChange = onUsernameChange,
             onEmailChange = onEmailChange,
             onPasswordChange = onPasswordChange,
@@ -153,7 +213,7 @@ fun RegistrationScreenPortrait(
 @Composable
 fun RegistrationScreenLandscape(
     state: RegistrationState,
-    paddingValues : PaddingValues,
+    paddingValues: PaddingValues,
     textAlign: TextAlign,
     onUsernameChange: (String) -> Unit,
     onEmailChange: (String) -> Unit,
@@ -183,10 +243,7 @@ fun RegistrationScreenLandscape(
                 .weight(0.5f)
                 .padding(end = 40.dp)
                 .verticalScroll(rememberScrollState()),
-            username = state.username,
-            email = state.email,
-            password = state.password,
-            passwordConfirmation = state.passwordConfirmation,
+            state = state,
             onUsernameChange = onUsernameChange,
             onEmailChange = onEmailChange,
             onPasswordChange = onPasswordChange,

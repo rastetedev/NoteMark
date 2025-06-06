@@ -1,6 +1,7 @@
 [versions]
 agp = "8.10.1"
 coreSplashscreen = "1.0.1"
+foundation = "1.8.2"
 kotlin = "2.1.20"
 coreKtx = "1.16.0"
 junit = "4.13.2"
@@ -28,11 +29,14 @@ androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecyc
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 
 androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "securityCrypto" }
+
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "composeNavigation" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-materialWindow = { module = "androidx.compose.material3:material3-window-size-class" }
+androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
+
 
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 
@@ -70,7 +74,8 @@ compose = [
     "androidx-material3",
     "androidx-navigation-compose",
     "androidx-ui-graphics",
-    "androidx-compose-materialWindow"
+    "androidx-compose-materialWindow",
+    "androidx-foundation"
 ]
 
 koin-compose = [

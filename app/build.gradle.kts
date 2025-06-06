@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.implementation
 import org.jetbrains.kotlin.konan.properties.Properties
 
 plugins {
@@ -90,4 +91,5 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.androidx.security.crypto)
+
 }

@@ -144,7 +144,7 @@ fun NoteMarkPasswordTextField(
                                 R.drawable.eye_off
                             ),
                             contentDescription = if (isPasswordVisible) {
-                                stringResource(id = R.string.hide_passoword)
+                                stringResource(id = R.string.hide_password)
                             } else {
                                 stringResource(id = R.string.show_password)
                             },

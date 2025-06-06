@@ -18,7 +18,14 @@
     <string name="password_confirmation_label">Repeat password</string>
     <string name="create_account_button">Create account</string>
     <string name="already_have_account_button">Already have an account?</string>
-    <string name="hide_passoword">Hide password</string>
+    <string name="hide_password">Hide password</string>
     <string name="show_password">Show password</string>
+    <string name="error_username_min_length">Username must be at least 3 characters</string>
+    <string name="error_username_max_length">Username can’t be longer than 20 characters</string>
+    <string name="error_email_invalid">Invalid email provided</string>
+    <string name="error_password_invalid">Password must be at least 8 characters and\ninclude a number or symbol</string>
+    <string name="error_password_confirmation_mismatch">Passwords do not match</string>
+    <string name="registration_error_message">Failed to register. Please check your details and try again.</string>
+    <string name="registration_success_message">Successfully registered! You can now log in.</string>
 
 </resources>
