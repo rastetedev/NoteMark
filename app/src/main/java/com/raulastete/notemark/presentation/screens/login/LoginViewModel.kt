@@ -40,7 +40,8 @@ class LoginViewModel(
                         }
 
                         is Result.Error -> {
-                            eventChannel.send(LoginEvent.OnLoginFail)
+
+                            eventChannel.send(LoginEvent.OnLoginFail(result.error))
                         }
                     }
                 }

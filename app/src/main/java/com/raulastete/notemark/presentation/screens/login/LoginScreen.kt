@@ -33,6 +33,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raulastete.notemark.R
+import com.raulastete.notemark.domain.DataError
 import com.raulastete.notemark.presentation.designsystem.components.NoteMarkMessageSnackbar
 import com.raulastete.notemark.presentation.screens.login.components.LoginForm
 import com.raulastete.notemark.presentation.screens.login.components.LoginScreenHeader
@@ -56,11 +57,15 @@ fun LoginRoot(
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
-            LoginEvent.OnLoginFail -> {
+            is LoginEvent.OnLoginFail -> {
                 keyboardController?.hide()
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = context.getString(R.string.login_error_message),
+                        message = when (event.error) {
+                            DataError.Network.UNAUTHORIZED -> context.getString(R.string.login_error_unauthorized)
+                            DataError.Network.TOO_MANY_REQUESTS -> context.getString(R.string.login_error_too_many_requests)
+                            else -> context.getString(R.string.login_error_message)
+                        },
                         duration = SnackbarDuration.Short,
                         withDismissAction = true
                     )

@@ -23,13 +23,15 @@
     <string name="error_username_min_length">Username must be at least 3 characters</string>
     <string name="error_username_max_length">Username can’t be longer than 20 characters</string>
     <string name="error_email_invalid">Invalid email provided</string>
-    <string name="error_password_invalid">Password must be at least 8 characters and\ninclude a number or symbol</string>
+    <string name="error_password_invalid">Password must be at least 8 characters and include a number or symbol</string>
     <string name="error_password_confirmation_mismatch">Passwords do not match</string>
     <string name="registration_error_message">Failed to register. Please check your details and try again.</string>
     <string name="registration_success_message">Successfully registered! You can now log in.</string>
     <string name="username_info">Use between 3 and 20 characters for your username.</string>
     <string name="password_info">Use 8+ characters with a number or symbol for better security.</string>
     <string name="login_success_message">Successfully logged in</string>
-    <string name="login_error_message">Successfully failed</string>
+    <string name="login_error_message">There was an error. Try later</string>
+    <string name="login_error_unauthorized">Sorry! Invalid credentials</string>
+    <string name="login_error_too_many_requests">Ups! Many attempts. Try later</string>
 
 </resources>
