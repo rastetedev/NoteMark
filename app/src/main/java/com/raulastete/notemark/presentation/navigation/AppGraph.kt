@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.raulastete.notemark.presentation.screens.home.HomeRoot
 import com.raulastete.notemark.presentation.screens.landing.LandingRoot
 import com.raulastete.notemark.presentation.screens.login.LoginRoot
 import com.raulastete.notemark.presentation.screens.registration.RegistrationRoot
@@ -68,6 +69,11 @@ fun AppGraph(
                         popUpTo(Destination.Registration) { inclusive = true }
                         launchSingleTop = true
                     }
+                },
+                navigateToHome = {
+                    navController.navigate(Destination.Home) {
+                        popUpTo(Destination.Login) { inclusive = true }
+                    }
                 }
             )
         }
@@ -82,6 +88,10 @@ fun AppGraph(
                     }
                 }
             )
+        }
+
+        composable<Destination.Home> {
+            HomeRoot()
         }
     }
 }

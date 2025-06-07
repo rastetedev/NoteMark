@@ -12,4 +12,7 @@ sealed interface Destination {
 
     @Serializable
     object Registration : Destination
+
+    @Serializable
+    object Home : Destination
 }
