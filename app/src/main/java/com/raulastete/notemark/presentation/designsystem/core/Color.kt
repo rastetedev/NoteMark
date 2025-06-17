@@ -12,3 +12,6 @@ val Black10 = Color(0x1A1B1B1C)
 val GreyDark = Color(0xFF535364)
 val GreyLight = Color(0xFFEFEFF2)
 val Red = Color(0xFFE1294B)
+
+val FirstGradient = Color(0xFF58A1F8)
+val SecondGradient = Color(0xFF5A4CF7)

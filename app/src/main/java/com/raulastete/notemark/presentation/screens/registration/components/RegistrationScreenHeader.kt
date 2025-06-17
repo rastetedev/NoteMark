@@ -24,7 +24,7 @@ fun RegistrationScreenHeader(
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = textAlign,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.displayMedium
         )
         Spacer(Modifier.height(6.dp))
 

@@ -1,6 +1,10 @@
 package com.raulastete.notemark.presentation.screens.home
 
+import com.raulastete.notemark.domain.entity.Note
+
 data class HomeState(
-    val paramOne: String = "default",
-    val paramTwo: List<String> = emptyList(),
+    val username: String = "",
+    val usernameInitials : String = "",
+    val noteList: List<Note> = emptyList(),
+    val isLoading: Boolean = false
 )

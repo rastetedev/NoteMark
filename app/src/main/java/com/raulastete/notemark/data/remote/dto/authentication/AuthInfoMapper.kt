@@ -5,12 +5,14 @@ import com.raulastete.notemark.domain.entity.AuthInfo
 fun AuthInfo.toAuthorizationResponse(): AuthorizationResponse {
     return AuthorizationResponse(
         accessToken = accessToken,
-        refreshToken = refreshToken
+        refreshToken = refreshToken,
+        username = username
     )
 }
 fun AuthorizationResponse.toAuthInfo(): AuthInfo {
     return AuthInfo(
         accessToken = accessToken,
-        refreshToken = refreshToken
+        refreshToken = refreshToken,
+        username = username
     )
 }

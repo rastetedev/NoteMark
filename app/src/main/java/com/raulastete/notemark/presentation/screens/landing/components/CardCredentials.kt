@@ -47,7 +47,7 @@ fun CardCredentials(
             text =stringResource(R.string.landing_title),
             modifier = Modifier.fillMaxWidth(),
             textAlign = textAlign,
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.displayMedium,
             color = MaterialTheme.colorScheme.onSurface
         )
 

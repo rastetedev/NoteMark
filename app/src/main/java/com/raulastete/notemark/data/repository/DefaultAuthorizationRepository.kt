@@ -34,7 +34,8 @@ class DefaultAuthorizationRepository(
             sessionStorage.set(
                 AuthInfo(
                     accessToken = result.data.accessToken,
-                    refreshToken = result.data.refreshToken
+                    refreshToken = result.data.refreshToken,
+                    username = result.data.username
                 )
             )
         }

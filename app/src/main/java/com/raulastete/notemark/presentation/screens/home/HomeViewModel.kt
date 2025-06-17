@@ -2,12 +2,15 @@ package com.raulastete.notemark.presentation.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.raulastete.notemark.domain.FormatUsernameInitials
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 
-class HomeViewModel : ViewModel() {
+class HomeViewModel(
+    private val formatUsernameInitials: FormatUsernameInitials
+) : ViewModel() {
 
     private var hasLoadedInitialData = false
 

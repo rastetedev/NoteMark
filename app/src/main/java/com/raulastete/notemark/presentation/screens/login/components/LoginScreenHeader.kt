@@ -21,7 +21,7 @@ fun LoginScreenHeader(modifier: Modifier = Modifier, textAlign: TextAlign = Text
             modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = textAlign,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.displayMedium
         )
         Spacer(Modifier.height(6.dp))
 

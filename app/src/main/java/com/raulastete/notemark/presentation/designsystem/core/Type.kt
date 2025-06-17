@@ -26,15 +26,33 @@ val Typography = Typography(
         fontSize = 36.sp,
         lineHeight = 40.sp
     ),
-    titleLarge = TextStyle(
+    displayMedium = TextStyle(
         fontFamily = spaceGroteskFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 32.sp,
         lineHeight = 36.sp
     ),
+    displaySmall = TextStyle(
+        fontFamily = spaceGroteskFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        lineHeight = 20.sp
+    ),
+    headlineMedium = TextStyle(
+        fontFamily = spaceGroteskFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 17.sp,
+        lineHeight = 24.sp
+    ),
     titleMedium = TextStyle(
         fontFamily = spaceGroteskFamily,
         fontWeight = FontWeight.Medium,
+        fontSize = 20.sp,
+        lineHeight = 24.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = spaceGroteskFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 20.sp,
         lineHeight = 24.sp
     ),
@@ -63,5 +81,3 @@ val Typography = Typography(
         lineHeight = 20.sp
     )
 )
-
-

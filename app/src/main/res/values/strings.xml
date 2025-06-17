@@ -33,5 +33,7 @@
     <string name="login_error_message">There was an error. Try later</string>
     <string name="login_error_unauthorized">Sorry! Invalid credentials</string>
     <string name="login_error_too_many_requests">Ups! Many attempts. Try later</string>
+    <string name="home_screen_title">NoteMark</string>
+    <string name="empty_note_list">You’ve got an empty board,\nlet’s place your first note on it!</string>
 
 </resources>

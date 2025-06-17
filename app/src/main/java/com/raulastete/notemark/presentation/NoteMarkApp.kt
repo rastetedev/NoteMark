@@ -1,8 +1,9 @@
-package com.raulastete.notemark
+package com.raulastete.notemark.presentation
 
 import android.app.Application
 import com.raulastete.notemark.di.appModule
 import com.raulastete.notemark.di.dataModule
+import com.raulastete.notemark.di.homeModule
 import com.raulastete.notemark.di.loginModule
 import com.raulastete.notemark.di.registrationModule
 import org.koin.android.ext.koin.androidContext
@@ -20,6 +21,7 @@ class NoteMarkApp : Application() {
                 appModule,
                 loginModule,
                 registrationModule,
+                homeModule,
                 dataModule
             )
         }

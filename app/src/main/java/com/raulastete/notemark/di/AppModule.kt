@@ -6,9 +6,7 @@ import androidx.security.crypto.MasterKeys
 import com.raulastete.notemark.data.validator.EmailPatternValidator
 import com.raulastete.notemark.domain.PatternValidator
 import com.raulastete.notemark.domain.UserDataValidator
-import com.raulastete.notemark.presentation.screens.home.HomeViewModel
 import org.koin.android.ext.koin.androidApplication
-import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val appModule = module {
@@ -31,6 +29,4 @@ val appModule = module {
     factory<PatternValidator> {
         EmailPatternValidator()
     }
-
-    viewModelOf(::HomeViewModel) //TODO: Remove this in milestone 2, this is just for testing purposes
 }
