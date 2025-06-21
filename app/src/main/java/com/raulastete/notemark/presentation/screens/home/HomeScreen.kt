@@ -60,9 +60,15 @@ fun HomeRoot(
         else -> 3
     }
 
+    val maxNoteContentLength = when (deviceMode) {
+        DeviceMode.PhonePortrait, DeviceMode.PhoneLandscape -> 150
+        DeviceMode.TabletPortrait, DeviceMode.TabletLandscape -> 250
+    }
+
     HomeScreen(
         state = state,
         columnNumbers = columnNumbers,
+        maxNoteContentLength = maxNoteContentLength,
         onNavigate = {
             when (it) {
                 is HomeAction.NavigationAction.OnNoteCardClick -> navigateToNoteForm(it.noteId)
@@ -92,6 +98,7 @@ fun HomeRoot(
 fun HomeScreen(
     state: HomeState,
     columnNumbers: Int,
+    maxNoteContentLength: Int,
     onNavigate: (HomeAction.NavigationAction) -> Unit,
     onAction: (HomeAction.NoteAction) -> Unit,
 ) {
@@ -159,10 +166,8 @@ fun HomeScreen(
                 ) {
                     items(state.noteList, key = { it.id }) { item ->
                         NoteCard(
-                            date = item.createdAt,
-                            title = item.title,
-                            body = item.content,
-                            bodyTextLengthLimit = 150,
+                            noteCardUiState = item,
+                            bodyTextLengthLimit = maxNoteContentLength,
                             onClick = {
                                 onNavigate(HomeAction.NavigationAction.OnNoteCardClick(item.id))
                             },
@@ -200,6 +205,7 @@ private fun Preview() {
         HomeScreen(
             state = HomeState(),
             columnNumbers = 2,
+            maxNoteContentLength = 150,
             onNavigate = {},
             onAction = {}
         )

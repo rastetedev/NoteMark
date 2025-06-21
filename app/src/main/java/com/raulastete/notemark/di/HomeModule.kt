@@ -1,5 +1,6 @@
 package com.raulastete.notemark.di
 
+import com.raulastete.notemark.domain.FormatNoteDateUseCase
 import com.raulastete.notemark.domain.FormatUsernameInitials
 import com.raulastete.notemark.domain.IsUserAuthenticatedUseCase
 import com.raulastete.notemark.presentation.screens.home.HomeViewModel
@@ -14,5 +15,9 @@ val homeModule = module {
 
     factory {
         IsUserAuthenticatedUseCase(get())
+    }
+
+    factory {
+        FormatNoteDateUseCase()
     }
 }

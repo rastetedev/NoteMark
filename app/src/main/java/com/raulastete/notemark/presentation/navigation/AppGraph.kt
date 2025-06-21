@@ -122,6 +122,7 @@ fun AppGraph(
 
             composable<Destination.NoteForm> {
                 NoteFormRoot(
+                    deviceMode = deviceMode,
                     navigateBack = {
                         navController.navigateUp()
                     }

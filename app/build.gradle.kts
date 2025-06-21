@@ -81,6 +81,8 @@ dependencies {
     implementation(libs.bundles.koin.compose)
     implementation(libs.bundles.ktor)
 
+    implementation(libs.kotlinx.datetime)
+
     debugImplementation(libs.androidx.ui.test.manifest)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -93,5 +95,4 @@ dependencies {
 
     implementation(libs.bundles.room)
     ksp(libs.room.compiler)
-
 }

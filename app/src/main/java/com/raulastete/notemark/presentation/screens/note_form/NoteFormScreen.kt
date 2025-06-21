@@ -1,10 +1,13 @@
 package com.raulastete.notemark.presentation.screens.note_form
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -29,11 +32,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raulastete.notemark.R
 import com.raulastete.notemark.presentation.designsystem.core.NoteMarkTheme
 import com.raulastete.notemark.presentation.screens.note_form.components.DiscardChangesDialog
+import com.raulastete.notemark.presentation.utils.DeviceMode
 import com.raulastete.notemark.presentation.utils.ObserveAsEvents
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun NoteFormRoot(
+    deviceMode: DeviceMode,
     viewModel: NoteFormViewModel = koinViewModel(),
     navigateBack: () -> Unit
 ) {
@@ -43,10 +48,21 @@ fun NoteFormRoot(
         navigateBack()
     }
 
-    NoteFormScreen(
-        state = screenState,
-        onAction = viewModel::onAction
-    )
+    when (deviceMode) {
+        DeviceMode.PhonePortrait, DeviceMode.TabletPortrait -> {
+            NoteFormScreen(
+                state = screenState,
+                onAction = viewModel::onAction
+            )
+        }
+
+        else -> {
+            NoteFormLandscapeScreen(
+                state = screenState,
+                onAction = viewModel::onAction
+            )
+        }
+    }
 
     if (screenState.showDiscardChangesDialog) {
         DiscardChangesDialog(
@@ -71,7 +87,6 @@ fun NoteFormScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         topBar = {
-
             TopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
@@ -141,6 +156,84 @@ fun NoteFormScreen(
                 },
                 cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
             )
+        }
+    }
+}
+
+@Composable
+fun NoteFormLandscapeScreen(
+    state: NoteFormState,
+    onAction: (NoteFormAction) -> Unit
+) {
+    Scaffold(containerColor = MaterialTheme.colorScheme.surfaceVariant) {
+        Row(
+            Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            Spacer(Modifier.weight(1f))
+
+            IconButton(onClick = {
+                onAction(NoteFormAction.ClickCloseButton)
+            }) {
+                Icon(
+                    Icons.Default.Close,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            Column(
+                Modifier
+                    .weight(8f)
+            ) {
+                BasicTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                    value = state.temporaryNoteTitle,
+                    onValueChange = {
+                        onAction(NoteFormAction.NoteTitleChanged(it))
+                    },
+                    textStyle = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+                    decorationBox = { innerTextField ->
+                        innerTextField()
+                    },
+                    cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
+                )
+
+                HorizontalDivider(Modifier.height(24.dp))
+
+                BasicTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp, top = 8.dp),
+                    value = state.temporaryNoteContent,
+                    onValueChange = {
+                        onAction(NoteFormAction.NoteContentChanged(it))
+                    },
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+                    decorationBox = { innerTextField ->
+                        innerTextField()
+                    },
+                    cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
+                )
+            }
+
+            Spacer(Modifier.width(24.dp))
+
+            TextButton(onClick = {
+                onAction(NoteFormAction.ClickSaveButton)
+            }) {
+                Text(
+                    stringResource(R.string.save_note_button).uppercase(),
+                    style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
+                )
+            }
+
+            Spacer(Modifier.width(24.dp))
         }
     }
 }

@@ -2,9 +2,11 @@ package com.raulastete.notemark.presentation.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.raulastete.notemark.domain.FormatNoteDateUseCase
 import com.raulastete.notemark.domain.FormatUsernameInitials
 import com.raulastete.notemark.domain.entity.Note
 import com.raulastete.notemark.domain.repository.NoteRepository
+import com.raulastete.notemark.presentation.screens.home.components.NoteCardUiState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,9 +18,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 class HomeViewModel(
     private val formatUsernameInitials: FormatUsernameInitials,
+    private val formatNoteDateUseCase: FormatNoteDateUseCase,
     private val noteRepository: NoteRepository
 ) : ViewModel() {
 
@@ -35,7 +39,14 @@ class HomeViewModel(
                 _screenState.update {
                     it.copy(
                         usernameInitials = usernameInitials,
-                        noteList = noteList
+                        noteList = noteList.map { note ->
+                            NoteCardUiState(
+                                id = note.id,
+                                formattedDate = formatNoteDateUseCase(note.createdAt),
+                                title = note.title,
+                                content = note.content
+                            )
+                        }
                     )
                 }
             }
@@ -49,13 +60,16 @@ class HomeViewModel(
                 viewModelScope.launch {
                     val noteId = Clock.System.now().toEpochMilliseconds().toString()
                     withContext(Dispatchers.IO) {
+                        val timestamp =
+                            Instant.fromEpochMilliseconds(Clock.System.now().toEpochMilliseconds())
+                                .toString()
                         noteRepository.upsertNote(
                             Note(
                                 id = noteId,
                                 title = "Note Title",
                                 content = "",
-                                createdAt = Clock.System.now().toEpochMilliseconds().toString(),
-                                updatedAt = Clock.System.now().toEpochMilliseconds().toString()
+                                createdAt = timestamp,
+                                updatedAt = timestamp
                             )
                         )
                     }

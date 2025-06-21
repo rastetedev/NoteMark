@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 class NoteFormViewModel(
     private val noteRepository: NoteRepository,
@@ -78,7 +79,7 @@ class NoteFormViewModel(
                     _screenState.update {
                         it.copy(showDiscardChangesDialog = true)
                     }
-                } else if(screenState.value.temporaryNoteContent.isEmpty()) {
+                } else if(screenState.value.temporaryNoteContent.isEmpty() ) {
                     viewModelScope.launch {
                         withContext(Dispatchers.IO) {
                             noteRepository.deleteNote(noteId)
@@ -101,7 +102,7 @@ class NoteFormViewModel(
                                 title = screenState.value.temporaryNoteTitle,
                                 content = screenState.value.temporaryNoteContent,
                                 createdAt = screenState.value.noteCreated,
-                                updatedAt = Clock.System.now().toEpochMilliseconds().toString(),
+                                updatedAt = Instant.fromEpochMilliseconds(Clock.System.now().toEpochMilliseconds()).toString(),
                             )
                         )
                     }
