@@ -1,5 +1,6 @@
 package com.raulastete.notemark.presentation.screens.home.components
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.raulastete.notemark.presentation.designsystem.core.NoteMarkTheme
@@ -24,11 +26,16 @@ fun NoteCard(
     title: String,
     body: String,
     bodyTextLengthLimit: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongPress: () -> Unit
 ) {
     Card(
-        onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.pointerInput(Unit){
+            detectTapGestures(
+                onLongPress = { onLongPress() },
+                onTap = { onClick() }
+            )
+        },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
@@ -69,8 +76,10 @@ private fun NoteCardPreview() {
                 date = "19 APR",
                 title = "Title of the note",
                 body = "Augue non mauris ante viverra ut arcu sed ut lectus interdum morbi sed leo purus gravida non id mi augue",
-                bodyTextLengthLimit = 100
-            ) { }
+                bodyTextLengthLimit = 100,
+                onLongPress = {},
+                onClick = {}
+            )
         }
     }
 }

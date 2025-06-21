@@ -1,8 +1,9 @@
 package com.raulastete.notemark.domain.entity
 
 data class Note(
-    val id: Int,
-    val date: String,
+    val id: String,
     val title: String,
-    val content: String
+    val content: String,
+    val createdAt: String,
+    val updatedAt: String
 )

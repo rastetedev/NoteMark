@@ -26,30 +26,74 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raulastete.notemark.R
 import com.raulastete.notemark.presentation.designsystem.components.NoteMarkFab
 import com.raulastete.notemark.presentation.designsystem.core.NoteMarkTheme
+import com.raulastete.notemark.presentation.screens.home.components.DeleteNoteDialog
 import com.raulastete.notemark.presentation.screens.home.components.NoteCard
+import com.raulastete.notemark.presentation.utils.DeviceMode
+import com.raulastete.notemark.presentation.utils.ObserveAsEvents
 import org.koin.androidx.compose.koinViewModel
+import kotlin.time.ExperimentalTime
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun HomeRoot(
-    viewModel: HomeViewModel = koinViewModel()
+    deviceMode: DeviceMode,
+    viewModel: HomeViewModel = koinViewModel(),
+    navigateToNoteForm: (noteId: String) -> Unit
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val state by viewModel.screenState.collectAsStateWithLifecycle()
+
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is HomeEvent.OnNoteCreated -> {
+                navigateToNoteForm(event.noteId)
+            }
+        }
+    }
+
+    val columnNumbers: Int = when (deviceMode) {
+        DeviceMode.PhonePortrait, DeviceMode.TabletPortrait -> 2
+        else -> 3
+    }
 
     HomeScreen(
         state = state,
+        columnNumbers = columnNumbers,
+        onNavigate = {
+            when (it) {
+                is HomeAction.NavigationAction.OnNoteCardClick -> navigateToNoteForm(it.noteId)
+            }
+        },
         onAction = viewModel::onAction
     )
+
+    if (state.showDeleteNoteDialog) {
+        Dialog(
+            onDismissRequest = { viewModel.onAction(HomeAction.NoteAction.DismissDeleteNoteDialog) }
+        ) {
+            DeleteNoteDialog(
+                onDelete = {
+                    viewModel.onAction(HomeAction.NoteAction.DeleteNote)
+                },
+                onCancel = {
+                    viewModel.onAction(HomeAction.NoteAction.DismissDeleteNoteDialog)
+                }
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     state: HomeState,
-    onAction: (HomeAction) -> Unit,
+    columnNumbers: Int,
+    onNavigate: (HomeAction.NavigationAction) -> Unit,
+    onAction: (HomeAction.NoteAction) -> Unit,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.surface,
@@ -86,7 +130,9 @@ fun HomeScreen(
         },
         floatingActionButton = {
             NoteMarkFab(
-                onClick = {}
+                onClick = {
+                    onAction(HomeAction.NoteAction.CreateNote)
+                }
             )
         }
     ) { innerPadding ->
@@ -106,18 +152,24 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding),
-                    columns = StaggeredGridCells.Fixed(2),
+                    columns = StaggeredGridCells.Fixed(columnNumbers),
                     contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp),
                     verticalItemSpacing = 16.dp,
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     items(state.noteList, key = { it.id }) { item ->
                         NoteCard(
-                            date = item.date,
+                            date = item.createdAt,
                             title = item.title,
                             body = item.content,
-                            bodyTextLengthLimit = 150
-                        ) { }
+                            bodyTextLengthLimit = 150,
+                            onClick = {
+                                onNavigate(HomeAction.NavigationAction.OnNoteCardClick(item.id))
+                            },
+                            onLongPress = {
+                                onAction(HomeAction.NoteAction.TryToDeleteNote(item.id))
+                            }
+                        )
                     }
                 }
             }
@@ -147,6 +199,8 @@ private fun Preview() {
     NoteMarkTheme {
         HomeScreen(
             state = HomeState(),
+            columnNumbers = 2,
+            onNavigate = {},
             onAction = {}
         )
     }

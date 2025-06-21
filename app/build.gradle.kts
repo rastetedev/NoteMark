@@ -80,7 +80,6 @@ dependencies {
 
     implementation(libs.bundles.koin.compose)
     implementation(libs.bundles.ktor)
-    implementation(libs.bundles.retrofit)
 
     debugImplementation(libs.androidx.ui.test.manifest)
     testImplementation(libs.junit)
@@ -91,5 +90,8 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.androidx.security.crypto)
+
+    implementation(libs.bundles.room)
+    ksp(libs.room.compiler)
 
 }

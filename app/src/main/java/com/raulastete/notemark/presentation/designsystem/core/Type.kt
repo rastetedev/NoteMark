@@ -79,5 +79,11 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 15.sp,
         lineHeight = 20.sp
+    ),
+    labelLarge = TextStyle(
+        fontFamily = spaceGroteskFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        lineHeight = 24.sp
     )
 )

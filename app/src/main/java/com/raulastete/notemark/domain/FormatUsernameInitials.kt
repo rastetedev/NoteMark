@@ -5,30 +5,40 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class FormatUsernameInitials(
+    private val sessionStorage: SessionStorage,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
 
-    suspend operator fun invoke(username: String): String {
+    suspend operator fun invoke(): String {
+
+        val username = sessionStorage.get()?.username.orEmpty()
+
         require(username.length >= 2)
+
         return withContext(dispatcher) {
 
             val wordsInUsername = username.split(" ")
             val wordsNumber = wordsInUsername.size
 
-            val firstTwoCharacters = username.take(2)
-            val firstCharacterOfEachWord = buildString {
-                append(wordsInUsername.first().first())
-                append(wordsInUsername[SECOND_WORD_INDEX].first())
-            }
-            val firstCharacterFromTheFirstAndLastWord = buildString {
-                append(wordsInUsername.first().first())
-                append(wordsInUsername.last().first())
-            }
-
             when (wordsNumber) {
-                ONE_WORD -> firstTwoCharacters
-                TWO_WORDS -> firstCharacterOfEachWord
-                else -> firstCharacterFromTheFirstAndLastWord
+                ONE_WORD -> {
+                    val firstTwoCharacters = username.take(2)
+                    firstTwoCharacters.uppercase()
+                }
+                TWO_WORDS -> {
+                    val firstCharacterOfEachWord = buildString {
+                        append(wordsInUsername.first().first())
+                        append(wordsInUsername[SECOND_WORD_INDEX].first())
+                    }
+                    firstCharacterOfEachWord.uppercase()
+                }
+                else -> {
+                    val firstCharacterFromTheFirstAndLastWord = buildString {
+                        append(wordsInUsername.first().first())
+                        append(wordsInUsername.last().first())
+                    }
+                    firstCharacterFromTheFirstAndLastWord.uppercase()
+                }
             }
         }
     }

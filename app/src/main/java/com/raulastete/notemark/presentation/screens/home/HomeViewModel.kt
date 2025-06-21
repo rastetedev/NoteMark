@@ -3,35 +3,99 @@ package com.raulastete.notemark.presentation.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.raulastete.notemark.domain.FormatUsernameInitials
+import com.raulastete.notemark.domain.entity.Note
+import com.raulastete.notemark.domain.repository.NoteRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class HomeViewModel(
-    private val formatUsernameInitials: FormatUsernameInitials
+    private val formatUsernameInitials: FormatUsernameInitials,
+    private val noteRepository: NoteRepository
 ) : ViewModel() {
 
-    private var hasLoadedInitialData = false
+    private val eventChannel = Channel<HomeEvent>()
+    val events = eventChannel.receiveAsFlow()
 
-    private val _state = MutableStateFlow(HomeState())
-    val state = _state
-        .onStart {
-            if (!hasLoadedInitialData) {
-                /** Load initial data here **/
-                hasLoadedInitialData = true
+    private val _screenState = MutableStateFlow(HomeState())
+    val screenState = _screenState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            val usernameInitials = formatUsernameInitials()
+            noteRepository.getNotes().collectLatest { noteList ->
+                _screenState.update {
+                    it.copy(
+                        usernameInitials = usernameInitials,
+                        noteList = noteList
+                    )
+                }
             }
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000L),
-            initialValue = HomeState()
-        )
-
-    fun onAction(action: HomeAction) {
-        when (action) {
-            else -> TODO("Handle actions")
         }
     }
 
+    @OptIn(ExperimentalTime::class)
+    fun onAction(action: HomeAction.NoteAction) {
+        when (action) {
+            HomeAction.NoteAction.CreateNote -> {
+                viewModelScope.launch {
+                    val noteId = Clock.System.now().toEpochMilliseconds().toString()
+                    withContext(Dispatchers.IO) {
+                        noteRepository.upsertNote(
+                            Note(
+                                id = noteId,
+                                title = "Note Title",
+                                content = "",
+                                createdAt = Clock.System.now().toEpochMilliseconds().toString(),
+                                updatedAt = Clock.System.now().toEpochMilliseconds().toString()
+                            )
+                        )
+                    }
+                    eventChannel.send(HomeEvent.OnNoteCreated(noteId))
+                }
+            }
+
+            is HomeAction.NoteAction.TryToDeleteNote -> {
+                _screenState.update {
+                    it.copy(
+                        showDeleteNoteDialog = true,
+                        temporaryNoteDeleteId = action.noteId,
+                    )
+                }
+            }
+
+            HomeAction.NoteAction.DismissDeleteNoteDialog -> {
+                _screenState.update {
+                    it.copy(
+                        showDeleteNoteDialog = false,
+                        temporaryNoteDeleteId = null
+                    )
+                }
+            }
+
+            HomeAction.NoteAction.DeleteNote -> {
+                viewModelScope.launch {
+                    screenState.value.temporaryNoteDeleteId?.let {
+                        withContext(Dispatchers.IO) {
+                            noteRepository.deleteNote(it)
+                        }
+                        _screenState.update {
+                            it.copy(
+                                showDeleteNoteDialog = false,
+                                temporaryNoteDeleteId = null
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

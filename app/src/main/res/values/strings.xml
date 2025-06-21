@@ -35,5 +35,14 @@
     <string name="login_error_too_many_requests">Ups! Many attempts. Try later</string>
     <string name="home_screen_title">NoteMark</string>
     <string name="empty_note_list">You’ve got an empty board,\nlet’s place your first note on it!</string>
+    <string name="save_note_button">Save Note</string>
+    <string name="delete_note_dialog_title">Delete note?</string>
+    <string name="delete_note_dialog_content">Are you sure you want to delete this note? This action cannot be undone.</string>
+    <string name="delete_note_button">Delete</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="discard_changes_note_dialog_title">Discard Changes?</string>
+    <string name="discard_changes_note_dialog_content">You have unsaved changes. If you discard now, all\nchanges will be lost.</string>
+    <string name="discard_note_button">Discard</string>
+    <string name="keep_editing_button">Keep Editing</string>
 
 </resources>

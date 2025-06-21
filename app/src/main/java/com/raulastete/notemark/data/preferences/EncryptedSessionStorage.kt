@@ -37,6 +37,7 @@ class EncryptedSessionStorage(
                 }
         }
     }
+
     companion object {
         private const val KEY_AUTH_INFO = "KEY_AUTH_INFO"
     }
