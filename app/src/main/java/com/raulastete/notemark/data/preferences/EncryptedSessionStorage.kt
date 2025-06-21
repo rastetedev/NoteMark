@@ -8,9 +8,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import androidx.core.content.edit
-import com.raulastete.notemark.data.remote.dto.authentication.AuthorizationResponse
-import com.raulastete.notemark.data.remote.dto.authentication.toAuthorizationResponse
+import com.raulastete.notemark.data.remote.dto.authentication.LoginResponse
 import com.raulastete.notemark.data.remote.dto.authentication.toAuthInfo
+import com.raulastete.notemark.data.remote.dto.authentication.toLoginResponse
 
 class EncryptedSessionStorage(
     private val sharedPreferences: SharedPreferences
@@ -20,7 +20,7 @@ class EncryptedSessionStorage(
         return withContext(Dispatchers.IO) {
             val json = sharedPreferences.getString(KEY_AUTH_INFO, null)
             json?.let {
-                Json.decodeFromString<AuthorizationResponse>(it).toAuthInfo()
+                Json.decodeFromString<LoginResponse>(it).toAuthInfo()
             }
         }
     }
@@ -30,7 +30,7 @@ class EncryptedSessionStorage(
                 sharedPreferences.edit(commit = true) { remove(KEY_AUTH_INFO) }
                 return@withContext
             }
-            val json = Json.encodeToString(info.toAuthorizationResponse())
+            val json = Json.encodeToString(info.toLoginResponse())
             sharedPreferences
                 .edit(commit = true) {
                     putString(KEY_AUTH_INFO, json)

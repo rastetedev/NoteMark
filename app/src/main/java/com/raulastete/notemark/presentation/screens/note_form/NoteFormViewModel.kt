@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.raulastete.notemark.domain.Result
 import com.raulastete.notemark.domain.entity.Note
 import com.raulastete.notemark.domain.repository.NoteRepository
 import com.raulastete.notemark.presentation.navigation.Destination
@@ -36,22 +37,23 @@ class NoteFormViewModel(
         noteId = args.noteId
 
         viewModelScope.launch {
-            val note = withContext(Dispatchers.IO) {
+            val result = withContext(Dispatchers.IO) {
                 noteRepository.getNote(noteId)
             }
-            note?.let {
-                _screenState.update {
-                    it.copy(
-                        noteTitle = note.title,
-                        noteContent = note.content,
-                        noteCreated = note.createdAt,
-                        temporaryNoteTitle = note.title,
-                        temporaryNoteContent = note.content,
-                    )
+            if (result is Result.Success) {
+                result.data?.let { note ->
+                    _screenState.update {
+                        it.copy(
+                            noteTitle = note.title,
+                            noteContent = note.content,
+                            noteCreated = note.createdAt,
+                            temporaryNoteTitle = note.title,
+                            temporaryNoteContent = note.content,
+                        )
+                    }
                 }
             }
         }
-
     }
 
     @OptIn(ExperimentalTime::class)
@@ -79,7 +81,7 @@ class NoteFormViewModel(
                     _screenState.update {
                         it.copy(showDiscardChangesDialog = true)
                     }
-                } else if(screenState.value.temporaryNoteContent.isEmpty() ) {
+                } else if (screenState.value.temporaryNoteContent.isEmpty()) {
                     viewModelScope.launch {
                         withContext(Dispatchers.IO) {
                             noteRepository.deleteNote(noteId)
@@ -102,7 +104,9 @@ class NoteFormViewModel(
                                 title = screenState.value.temporaryNoteTitle,
                                 content = screenState.value.temporaryNoteContent,
                                 createdAt = screenState.value.noteCreated,
-                                updatedAt = Instant.fromEpochMilliseconds(Clock.System.now().toEpochMilliseconds()).toString(),
+                                lastEditedAt = Instant.fromEpochMilliseconds(
+                                    Clock.System.now().toEpochMilliseconds()
+                                ).toString(),
                             )
                         )
                     }

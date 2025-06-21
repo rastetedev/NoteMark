@@ -1,7 +1,7 @@
 package com.raulastete.notemark.data.repository
 
-import com.raulastete.notemark.data.remote.dto.authentication.AuthorizationResponse
 import com.raulastete.notemark.data.remote.dto.authentication.LoginRequest
+import com.raulastete.notemark.data.remote.dto.authentication.LoginResponse
 import com.raulastete.notemark.data.remote.dto.authentication.RegistrationRequest
 import com.raulastete.notemark.data.remote.service.ktor.ApiUrl
 import com.raulastete.notemark.data.remote.service.ktor.post
@@ -23,7 +23,7 @@ class DefaultAuthorizationRepository(
         email: String,
         password: String
     ): EmptyDataResult<DataError.Network> {
-        val result = httpClient.post<LoginRequest, AuthorizationResponse>(
+        val result = httpClient.post<LoginRequest, LoginResponse>(
             route = ApiUrl.LOGIN,
             body = LoginRequest(
                 email = email,

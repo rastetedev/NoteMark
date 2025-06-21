@@ -22,8 +22,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,6 +48,12 @@ fun NoteFormRoot(
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     ObserveAsEvents(viewModel.events) { event ->
         navigateBack()
     }
@@ -52,6 +62,7 @@ fun NoteFormRoot(
         DeviceMode.PhonePortrait, DeviceMode.TabletPortrait -> {
             NoteFormScreen(
                 state = screenState,
+                focusRequester = focusRequester,
                 onAction = viewModel::onAction
             )
         }
@@ -59,6 +70,7 @@ fun NoteFormRoot(
         else -> {
             NoteFormLandscapeScreen(
                 state = screenState,
+                focusRequester = focusRequester,
                 onAction = viewModel::onAction
             )
         }
@@ -81,6 +93,7 @@ fun NoteFormRoot(
 @Composable
 fun NoteFormScreen(
     state: NoteFormState,
+    focusRequester: FocusRequester,
     onAction: (NoteFormAction) -> Unit,
 ) {
 
@@ -128,7 +141,8 @@ fun NoteFormScreen(
             BasicTextField(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(16.dp)
+                    .focusRequester(focusRequester),
                 value = state.temporaryNoteTitle,
                 onValueChange = {
                     onAction(NoteFormAction.NoteTitleChanged(it))
@@ -163,6 +177,7 @@ fun NoteFormScreen(
 @Composable
 fun NoteFormLandscapeScreen(
     state: NoteFormState,
+    focusRequester : FocusRequester,
     onAction: (NoteFormAction) -> Unit
 ) {
     Scaffold(containerColor = MaterialTheme.colorScheme.surfaceVariant) {
@@ -192,7 +207,8 @@ fun NoteFormLandscapeScreen(
                 BasicTextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
+                        .focusRequester(focusRequester),
                     value = state.temporaryNoteTitle,
                     onValueChange = {
                         onAction(NoteFormAction.NoteTitleChanged(it))
@@ -244,6 +260,7 @@ private fun Preview() {
     NoteMarkTheme {
         NoteFormScreen(
             state = NoteFormState(),
+            focusRequester = remember { FocusRequester() },
             onAction = {}
         )
     }

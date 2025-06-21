@@ -2,8 +2,7 @@ package com.raulastete.notemark.data.remote.service.ktor
 
 import com.raulastete.notemark.BuildConfig
 import com.raulastete.notemark.data.remote.dto.authentication.RefreshTokenRequest
-import com.raulastete.notemark.data.remote.dto.authentication.AuthorizationResponse
-import com.raulastete.notemark.domain.entity.AuthInfo
+import com.raulastete.notemark.data.remote.dto.authentication.RefreshTokenResponse
 import com.raulastete.notemark.domain.SessionStorage
 import com.raulastete.notemark.domain.Result
 import io.ktor.client.HttpClient
@@ -59,7 +58,7 @@ class HttpClientFactory(
                     }
                     refreshTokens {
                         val info = sessionStorage.get()
-                        val response = client.post<RefreshTokenRequest, AuthorizationResponse>(
+                        val response = client.post<RefreshTokenRequest, RefreshTokenResponse>(
                             route = ApiUrl.REFRESH_TOKEN,
                             body = RefreshTokenRequest(
                                 refreshToken = info?.refreshToken ?: "",
@@ -67,16 +66,15 @@ class HttpClientFactory(
                         )
 
                         if (response is Result.Success) {
-                            val newAuthInfo = AuthInfo(
+                            val newAuthInfo = info?.copy(
                                 accessToken = response.data.accessToken,
                                 refreshToken = response.data.refreshToken,
-                                username = response.data.username
                             )
 
                             sessionStorage.set(newAuthInfo)
 
                             BearerTokens(
-                                accessToken = newAuthInfo.accessToken,
+                                accessToken = newAuthInfo?.accessToken!!,
                                 refreshToken = newAuthInfo.refreshToken
                             )
                         } else {

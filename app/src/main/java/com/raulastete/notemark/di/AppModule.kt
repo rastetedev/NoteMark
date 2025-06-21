@@ -7,6 +7,7 @@ import androidx.security.crypto.MasterKeys
 import com.raulastete.notemark.data.local.NoteDao
 import com.raulastete.notemark.data.local.NoteMarkDatabase
 import com.raulastete.notemark.data.mapper.NoteMapper
+import com.raulastete.notemark.data.remote.service.ktor.NoteRemoteService
 import com.raulastete.notemark.data.validator.EmailPatternValidator
 import com.raulastete.notemark.domain.PatternValidator
 import com.raulastete.notemark.domain.UserDataValidator
@@ -46,6 +47,8 @@ val appModule = module {
     }
 
     single { NoteMapper() }
+
+    single { NoteRemoteService(get()) }
 
     factory {
         UserDataValidator(get())

@@ -69,7 +69,7 @@ class HomeViewModel(
                                 title = "Note Title",
                                 content = "",
                                 createdAt = timestamp,
-                                updatedAt = timestamp
+                                lastEditedAt = timestamp
                             )
                         )
                     }

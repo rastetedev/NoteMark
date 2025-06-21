@@ -12,7 +12,7 @@ class NoteMapper {
             note.title,
             note.content,
             note.createdAt,
-            note.updatedAt
+            note.lastEditedAt
         )
     }
 
@@ -31,7 +31,8 @@ class NoteMapper {
             note.id,
             note.title,
             note.content,
-            note.updatedAt
+            note.createdAt,
+            note.lastEditedAt
         )
     }
 }
