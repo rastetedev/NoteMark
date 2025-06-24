@@ -1,4 +1,4 @@
-package com.raulastete.notemark.domain
+package com.raulastete.notemark.domain.validator
 
 data class UsernameValidationState(
     val greaterThanMinLength: Boolean = false,

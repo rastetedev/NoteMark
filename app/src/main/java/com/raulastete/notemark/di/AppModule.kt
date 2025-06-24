@@ -10,7 +10,7 @@ import com.raulastete.notemark.data.mapper.NoteMapper
 import com.raulastete.notemark.data.remote.service.ktor.NoteRemoteService
 import com.raulastete.notemark.data.validator.EmailPatternValidator
 import com.raulastete.notemark.domain.PatternValidator
-import com.raulastete.notemark.domain.UserDataValidator
+import com.raulastete.notemark.domain.validator.UserDataValidator
 import com.raulastete.notemark.presentation.NoteMarkApp
 import kotlinx.coroutines.CoroutineScope
 import org.koin.android.ext.koin.androidApplication

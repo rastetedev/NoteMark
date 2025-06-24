@@ -1,4 +1,4 @@
-package com.raulastete.notemark.domain
+package com.raulastete.notemark.domain.validator
 
 data class PasswordValidationState(
     val hasMinLength: Boolean = false,

@@ -1,10 +1,11 @@
-package com.raulastete.notemark.domain
+package com.raulastete.notemark.domain.usecase
 
+import com.raulastete.notemark.domain.SessionStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class FormatUsernameInitials(
+class FormatUsernameInitialsUseCase(
     private val sessionStorage: SessionStorage,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {

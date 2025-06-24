@@ -166,6 +166,14 @@ fun NoteFormScreen(
                 },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
                 decorationBox = { innerTextField ->
+                    if (state.temporaryNoteContent.isEmpty()) {
+                        Text(
+                            "Put your content here",
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
+                        )
+                    }
                     innerTextField()
                 },
                 cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
@@ -177,7 +185,7 @@ fun NoteFormScreen(
 @Composable
 fun NoteFormLandscapeScreen(
     state: NoteFormState,
-    focusRequester : FocusRequester,
+    focusRequester: FocusRequester,
     onAction: (NoteFormAction) -> Unit
 ) {
     Scaffold(containerColor = MaterialTheme.colorScheme.surfaceVariant) {

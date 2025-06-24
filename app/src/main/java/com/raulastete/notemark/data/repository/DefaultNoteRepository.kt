@@ -24,7 +24,7 @@ class DefaultNoteRepository(
     override suspend fun upsertNote(note: Note): EmptyDataResult<DataError> {
 
         val result = applicationScope.async {
-            if (note.lastEditedAt.isEmpty())
+            if (note.lastEditedAt == note.createdAt)
                 return@async noteRemoteService.createNote(noteMapper.fromDomainToDto(note))
                     .asEmptyDataResult()
             else

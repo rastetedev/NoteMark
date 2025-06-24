@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.raulastete.notemark.R
 import com.raulastete.notemark.domain.Result
-import com.raulastete.notemark.domain.UserDataValidator
+import com.raulastete.notemark.domain.validator.UserDataValidator
 import com.raulastete.notemark.domain.repository.AuthorizationRepository
 import com.raulastete.notemark.presentation.utils.UiText.StringResource
 import kotlinx.coroutines.channels.Channel

@@ -8,14 +8,12 @@ import com.raulastete.notemark.domain.Result
 import com.raulastete.notemark.domain.entity.Note
 import com.raulastete.notemark.domain.repository.NoteRepository
 import com.raulastete.notemark.presentation.navigation.Destination
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
@@ -37,9 +35,9 @@ class NoteFormViewModel(
         noteId = args.noteId
 
         viewModelScope.launch {
-            val result = withContext(Dispatchers.IO) {
-                noteRepository.getNote(noteId)
-            }
+
+            val result = noteRepository.getNote(noteId)
+
             if (result is Result.Success) {
                 result.data?.let { note ->
                     _screenState.update {
@@ -83,10 +81,8 @@ class NoteFormViewModel(
                     }
                 } else if (screenState.value.temporaryNoteContent.isEmpty()) {
                     viewModelScope.launch {
-                        withContext(Dispatchers.IO) {
-                            noteRepository.deleteNote(noteId)
-                            eventChannel.send(NoteFormEvent.OnNoteDeleted)
-                        }
+                        noteRepository.deleteNote(noteId)
+                        eventChannel.send(NoteFormEvent.OnNoteDeleted)
                     }
                 } else {
                     viewModelScope.launch {
@@ -97,19 +93,18 @@ class NoteFormViewModel(
 
             NoteFormAction.ClickSaveButton -> {
                 viewModelScope.launch {
-                    withContext(Dispatchers.IO) {
-                        noteRepository.upsertNote(
-                            Note(
-                                id = noteId,
-                                title = screenState.value.temporaryNoteTitle,
-                                content = screenState.value.temporaryNoteContent,
-                                createdAt = screenState.value.noteCreated,
-                                lastEditedAt = Instant.fromEpochMilliseconds(
-                                    Clock.System.now().toEpochMilliseconds()
-                                ).toString(),
-                            )
+
+                    noteRepository.upsertNote(
+                        Note(
+                            id = noteId,
+                            title = screenState.value.temporaryNoteTitle,
+                            content = screenState.value.temporaryNoteContent,
+                            createdAt = screenState.value.noteCreated,
+                            lastEditedAt = Instant.fromEpochMilliseconds(
+                                Clock.System.now().toEpochMilliseconds()
+                            ).toString(),
                         )
-                    }
+                    )
 
                     eventChannel.send(NoteFormEvent.OnNoteChangesSaved)
                 }

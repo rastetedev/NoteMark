@@ -1,4 +1,4 @@
-package com.raulastete.notemark.domain
+package com.raulastete.notemark.domain.usecase
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

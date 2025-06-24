@@ -1,4 +1,6 @@
-package com.raulastete.notemark.domain
+package com.raulastete.notemark.domain.validator
+
+import com.raulastete.notemark.domain.PatternValidator
 
 class UserDataValidator(private val patternValidator: PatternValidator) {
 

@@ -15,7 +15,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.raulastete.notemark.domain.IsUserAuthenticatedUseCase
+import com.raulastete.notemark.domain.usecase.IsUserAuthenticatedUseCase
 import com.raulastete.notemark.presentation.screens.home.HomeRoot
 import com.raulastete.notemark.presentation.screens.landing.LandingRoot
 import com.raulastete.notemark.presentation.screens.login.LoginRoot
