@@ -35,13 +35,14 @@ class NoteFormViewModel(
         noteId = args.noteId
 
         viewModelScope.launch {
-
+            showLoading()
             val result = noteRepository.getNote(noteId)
 
             if (result is Result.Success) {
                 result.data?.let { note ->
                     _screenState.update {
                         it.copy(
+                            isLoading = false,
                             noteTitle = note.title,
                             noteContent = note.content,
                             noteCreated = note.createdAt,
@@ -51,6 +52,22 @@ class NoteFormViewModel(
                     }
                 }
             }
+        }
+    }
+
+    private fun showLoading() {
+        _screenState.update {
+            it.copy(
+                isLoading = true
+            )
+        }
+    }
+
+    private fun hideLoading() {
+        _screenState.update {
+            it.copy(
+                isLoading = false
+            )
         }
     }
 
@@ -81,7 +98,9 @@ class NoteFormViewModel(
                     }
                 } else if (screenState.value.temporaryNoteContent.isEmpty()) {
                     viewModelScope.launch {
+                        showLoading()
                         noteRepository.deleteNote(noteId)
+                        hideLoading()
                         eventChannel.send(NoteFormEvent.OnNoteDeleted)
                     }
                 } else {
@@ -93,7 +112,7 @@ class NoteFormViewModel(
 
             NoteFormAction.ClickSaveButton -> {
                 viewModelScope.launch {
-
+                    showLoading()
                     noteRepository.upsertNote(
                         Note(
                             id = noteId,
@@ -105,7 +124,7 @@ class NoteFormViewModel(
                             ).toString(),
                         )
                     )
-
+                    hideLoading()
                     eventChannel.send(NoteFormEvent.OnNoteChangesSaved)
                 }
             }

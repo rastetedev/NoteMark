@@ -34,10 +34,12 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch {
+            showLoading()
             val usernameInitials = formatUsernameInitialsUseCase()
             noteRepository.getNotes().collectLatest { noteList ->
                 _screenState.update {
                     it.copy(
+                        showLoading = false,
                         usernameInitials = usernameInitials,
                         noteList = noteList.map { note ->
                             NoteCardUiState(
@@ -53,10 +55,23 @@ class HomeViewModel(
         }
     }
 
+    private fun showLoading(){
+        _screenState.update {
+            it.copy(showLoading = true)
+        }
+    }
+
+    private fun hideLoading(){
+        _screenState.update {
+            it.copy(showLoading = false)
+        }
+    }
+
     @OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
     fun onAction(action: HomeAction.NoteAction) {
         when (action) {
             HomeAction.NoteAction.CreateNote -> {
+                showLoading()
                 viewModelScope.launch {
                     val noteId = Uuid.random().toString()
 
@@ -72,7 +87,7 @@ class HomeViewModel(
                             lastEditedAt = timestamp
                         )
                     )
-
+                    hideLoading()
                     eventChannel.send(HomeEvent.OnNoteCreated(noteId))
                 }
             }
@@ -97,13 +112,21 @@ class HomeViewModel(
 
             HomeAction.NoteAction.DeleteNote -> {
                 viewModelScope.launch {
+                    showLoading()
+
+                    _screenState.update {
+                        it.copy(
+                            showDeleteNoteDialog = false
+                        )
+                    }
+
                     screenState.value.temporaryNoteDeleteId?.let {
 
                         noteRepository.deleteNote(it)
 
                         _screenState.update {
                             it.copy(
-                                showDeleteNoteDialog = false,
+                                showLoading = false,
                                 temporaryNoteDeleteId = null
                             )
                         }

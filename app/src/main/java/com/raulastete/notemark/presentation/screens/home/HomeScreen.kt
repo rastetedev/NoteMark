@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -22,15 +23,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raulastete.notemark.R
 import com.raulastete.notemark.presentation.designsystem.components.NoteMarkFab
-import com.raulastete.notemark.presentation.designsystem.core.NoteMarkTheme
 import com.raulastete.notemark.presentation.screens.home.components.DeleteNoteDialog
 import com.raulastete.notemark.presentation.screens.home.components.NoteCard
 import com.raulastete.notemark.presentation.utils.DeviceMode
@@ -65,30 +65,44 @@ fun HomeRoot(
         DeviceMode.TabletPortrait, DeviceMode.TabletLandscape -> 250
     }
 
-    HomeScreen(
-        state = state,
-        columnNumbers = columnNumbers,
-        maxNoteContentLength = maxNoteContentLength,
-        onNavigate = {
-            when (it) {
-                is HomeAction.NavigationAction.OnNoteCardClick -> navigateToNoteForm(it.noteId)
-            }
-        },
-        onAction = viewModel::onAction
-    )
+    Box(Modifier.fillMaxSize()) {
 
-    if (state.showDeleteNoteDialog) {
-        Dialog(
-            onDismissRequest = { viewModel.onAction(HomeAction.NoteAction.DismissDeleteNoteDialog) }
-        ) {
-            DeleteNoteDialog(
-                onDelete = {
-                    viewModel.onAction(HomeAction.NoteAction.DeleteNote)
-                },
-                onCancel = {
-                    viewModel.onAction(HomeAction.NoteAction.DismissDeleteNoteDialog)
+        HomeScreen(
+            state = state,
+            columnNumbers = columnNumbers,
+            maxNoteContentLength = maxNoteContentLength,
+            onNavigate = {
+                when (it) {
+                    is HomeAction.NavigationAction.OnNoteCardClick -> navigateToNoteForm(it.noteId)
                 }
-            )
+            },
+            onAction = viewModel::onAction
+        )
+
+        if (state.showDeleteNoteDialog) {
+            Dialog(
+                onDismissRequest = { viewModel.onAction(HomeAction.NoteAction.DismissDeleteNoteDialog) }
+            ) {
+                DeleteNoteDialog(
+                    onDelete = {
+                        viewModel.onAction(HomeAction.NoteAction.DeleteNote)
+                    },
+                    onCancel = {
+                        viewModel.onAction(HomeAction.NoteAction.DismissDeleteNoteDialog)
+                    }
+                )
+            }
+        }
+
+        if (state.showLoading) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
         }
     }
 }
@@ -155,6 +169,7 @@ fun HomeScreen(
             }
 
             else -> {
+
                 LazyVerticalStaggeredGrid(
                     modifier = Modifier
                         .fillMaxSize()
@@ -179,6 +194,8 @@ fun HomeScreen(
                 }
             }
         }
+
+
     }
 }
 
@@ -194,20 +211,6 @@ fun HomeEmptyContent(modifier: Modifier = Modifier) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             ),
             textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun Preview() {
-    NoteMarkTheme {
-        HomeScreen(
-            state = HomeState(),
-            columnNumbers = 2,
-            maxNoteContentLength = 150,
-            onNavigate = {},
-            onAction = {}
         )
     }
 }
