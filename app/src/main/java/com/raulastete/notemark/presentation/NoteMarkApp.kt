@@ -7,6 +7,7 @@ import com.raulastete.notemark.di.homeModule
 import com.raulastete.notemark.di.loginModule
 import com.raulastete.notemark.di.noteFormModule
 import com.raulastete.notemark.di.registrationModule
+import com.raulastete.notemark.di.settingsModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
@@ -33,6 +34,7 @@ class NoteMarkApp : Application() {
                 registrationModule,
                 homeModule,
                 noteFormModule,
+                settingsModule,
                 dataModule
             )
         }

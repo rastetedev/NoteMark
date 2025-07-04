@@ -5,6 +5,7 @@ sealed interface HomeAction {
     sealed interface NavigationAction {
 
         data class OnNoteCardClick(val noteId: String) : NavigationAction
+        data object OnSettingsClick : NavigationAction
     }
 
     sealed interface NoteAction {

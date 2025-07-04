@@ -15,4 +15,6 @@ interface NoteRepository {
     suspend fun deleteNote(noteId: String) : EmptyDataResult<DataError>
 
     fun getNotes(): Flow<List<Note>>
+
+    suspend fun deleteAll() : EmptyDataResult<DataError>
 }

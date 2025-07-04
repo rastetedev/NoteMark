@@ -21,6 +21,7 @@ import com.raulastete.notemark.presentation.screens.landing.LandingRoot
 import com.raulastete.notemark.presentation.screens.login.LoginRoot
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormRoot
 import com.raulastete.notemark.presentation.screens.registration.RegistrationRoot
+import com.raulastete.notemark.presentation.screens.settings.SettingsRoot
 import com.raulastete.notemark.presentation.utils.DeviceMode
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -116,6 +117,9 @@ fun AppGraph(
                     deviceMode = deviceMode,
                     navigateToNoteForm = { noteId ->
                         navController.navigate(Destination.NoteForm(noteId))
+                    },
+                    navigateToSettings = {
+                        navController.navigate(Destination.Settings)
                     }
                 )
             }
@@ -125,6 +129,19 @@ fun AppGraph(
                     deviceMode = deviceMode,
                     navigateBack = {
                         navController.navigateUp()
+                    }
+                )
+            }
+
+            composable<Destination.Settings> {
+                SettingsRoot(
+                    navigateBack = {
+                        navController.navigateUp()
+                    },
+                    navigateToLogin = {
+                        navController.navigate(Destination.Login) {
+                            popUpTo(Destination.Login) { inclusive = true }
+                        }
                     }
                 )
             }

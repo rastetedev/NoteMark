@@ -6,4 +6,6 @@ object ApiUrl {
     const val REGISTRATION = "/api/auth/register"
     const val REFRESH_TOKEN = "/api/auth/refresh"
     const val NOTES = "/api/notes"
+
+    const val LOGOUT = "/api/auth/logout"
 }

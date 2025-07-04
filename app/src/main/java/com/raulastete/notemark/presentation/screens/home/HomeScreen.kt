@@ -11,8 +11,12 @@ import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -43,7 +47,8 @@ import kotlin.time.ExperimentalTime
 fun HomeRoot(
     deviceMode: DeviceMode,
     viewModel: HomeViewModel = koinViewModel(),
-    navigateToNoteForm: (noteId: String) -> Unit
+    navigateToNoteForm: (noteId: String) -> Unit,
+    navigateToSettings: () -> Unit
 ) {
     val state by viewModel.screenState.collectAsStateWithLifecycle()
 
@@ -74,6 +79,7 @@ fun HomeRoot(
             onNavigate = {
                 when (it) {
                     is HomeAction.NavigationAction.OnNoteCardClick -> navigateToNoteForm(it.noteId)
+                    is HomeAction.NavigationAction.OnSettingsClick -> navigateToSettings()
                 }
             },
             onAction = viewModel::onAction
@@ -124,6 +130,11 @@ fun HomeScreen(
                     Text(stringResource(R.string.home_screen_title))
                 },
                 actions = {
+                    IconButton(onClick = {
+                        onNavigate(HomeAction.NavigationAction.OnSettingsClick)
+                    }) {
+                        Icon(Icons.Outlined.Settings, contentDescription = null)
+                    }
                     Box(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)

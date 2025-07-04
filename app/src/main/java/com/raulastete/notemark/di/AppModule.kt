@@ -57,6 +57,4 @@ val appModule = module {
     factory<PatternValidator> {
         EmailPatternValidator()
     }
-
-
 }

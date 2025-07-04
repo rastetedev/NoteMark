@@ -19,4 +19,7 @@ interface NoteDao {
 
     @Query("SELECT * FROM NoteEntity ORDER BY updatedAt DESC")
     fun getAll(): Flow<List<NoteEntity>>
+
+    @Query("DELETE FROM NoteEntity")
+    suspend fun deleteAllNotes()
 }

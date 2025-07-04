@@ -15,4 +15,9 @@ interface AuthorizationRepository {
         email: String,
         password: String
     ): EmptyDataResult<DataError.Network>
+
+
+    suspend fun logout(
+        refreshToken: String
+    ): EmptyDataResult<DataError.Network>
 }

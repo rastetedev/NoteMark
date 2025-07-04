@@ -58,4 +58,9 @@ class DefaultNoteRepository(
             noteEntityList.map { noteMapper.fromEntityToDomain(it) }
         }
     }
+
+    override suspend fun deleteAll(): EmptyDataResult<DataError> {
+        noteDao.deleteAllNotes()
+        return Result.Success(Unit).asEmptyDataResult()
+    }
 }

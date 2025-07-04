@@ -18,4 +18,7 @@ sealed interface Destination {
 
     @Serializable
     data class NoteForm(val noteId: String) : Destination
+
+    @Serializable
+    object Settings : Destination
 }

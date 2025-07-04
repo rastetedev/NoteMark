@@ -44,5 +44,7 @@
     <string name="discard_changes_note_dialog_content">You have unsaved changes. If you discard now, all\nchanges will be lost.</string>
     <string name="discard_note_button">Discard</string>
     <string name="keep_editing_button">Keep Editing</string>
+    <string name="settings_screen_title">SETTINGS</string>
+    <string name="logout">Log out</string>
 
 </resources>

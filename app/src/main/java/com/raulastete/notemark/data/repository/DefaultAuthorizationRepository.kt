@@ -2,6 +2,7 @@ package com.raulastete.notemark.data.repository
 
 import com.raulastete.notemark.data.remote.dto.authentication.LoginRequest
 import com.raulastete.notemark.data.remote.dto.authentication.LoginResponse
+import com.raulastete.notemark.data.remote.dto.authentication.LogoutRequest
 import com.raulastete.notemark.data.remote.dto.authentication.RegistrationRequest
 import com.raulastete.notemark.data.remote.service.ktor.ApiUrl
 import com.raulastete.notemark.data.remote.service.ktor.post
@@ -53,6 +54,15 @@ class DefaultAuthorizationRepository(
                 username = username,
                 email = email,
                 password = password
+            )
+        )
+    }
+
+    override suspend fun logout(refreshToken: String): EmptyDataResult<DataError.Network> {
+        return httpClient.post<LogoutRequest, Unit>(
+            route = ApiUrl.LOGOUT,
+            body = LogoutRequest(
+                refreshToken = refreshToken
             )
         )
     }
