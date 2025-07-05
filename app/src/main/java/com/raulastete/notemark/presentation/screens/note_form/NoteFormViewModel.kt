@@ -47,8 +47,10 @@ class NoteFormViewModel(
                             isLoading = false,
                             noteTitle = note.title,
                             noteContent = note.content,
-                            noteCreated = formatNoteDateInFormUseCase(note.createdAt),
-                            noteUpdated = formatNoteDateInFormUseCase(note.lastEditedAt),
+                            noteCreated = note.createdAt,
+                            noteUpdated = note.lastEditedAt,
+                            formattedNoteCreated = formatNoteDateInFormUseCase(note.createdAt),
+                            formattedNoteUpdated = formatNoteDateInFormUseCase(note.lastEditedAt),
                             temporaryNoteTitle = note.title,
                             temporaryNoteContent = note.content
                         )
@@ -95,7 +97,7 @@ class NoteFormViewModel(
                     _screenState.update {
                         it.copy(showDiscardChangesDialog = true)
                     }
-                } else if (screenState.value.temporaryNoteContent.isEmpty()) {
+                } else if (screenState.value.temporaryNoteContent.isEmpty() && screenState.value.temporaryNoteTitle.isEmpty()) {
                     viewModelScope.launch {
                         showLoading()
                         noteRepository.deleteNote(noteId)
@@ -151,7 +153,8 @@ class NoteFormViewModel(
             NoteFormAction.ChangeToReaderMode -> {
                 _screenState.update {
                     it.copy(
-                        mode = NoteFormMode.READER
+                        mode = if (screenState.value.mode == NoteFormMode.READER) NoteFormMode.VIEW
+                        else NoteFormMode.READER
                     )
                 }
             }

@@ -8,6 +8,8 @@ data class NoteFormState(
     val noteUpdated: String = "",
     val temporaryNoteTitle: String = "",
     val temporaryNoteContent: String = "",
+    val formattedNoteCreated: String = "",
+    val formattedNoteUpdated: String = "",
     val showDiscardChangesDialog: Boolean = false,
     val mode: NoteFormMode = NoteFormMode.VIEW
 )

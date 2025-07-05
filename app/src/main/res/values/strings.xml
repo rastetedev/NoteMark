@@ -49,5 +49,6 @@
     <string name="date_created_metadata">Date created</string>
     <string name="date_last_edited_metadata">Last edited</string>
     <string name="note_content_hint">Put your content here</string>
+    <string name="all_notes">ALL NOTES</string>
 
 </resources>
