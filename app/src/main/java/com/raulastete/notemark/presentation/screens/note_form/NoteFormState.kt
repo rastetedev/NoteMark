@@ -5,7 +5,15 @@ data class NoteFormState(
     val noteTitle: String = "",
     val noteContent: String = "",
     val noteCreated: String = "",
+    val noteUpdated: String = "",
     val temporaryNoteTitle: String = "",
     val temporaryNoteContent: String = "",
-    val showDiscardChangesDialog: Boolean = false
+    val showDiscardChangesDialog: Boolean = false,
+    val mode: NoteFormMode = NoteFormMode.VIEW
 )
+
+enum class NoteFormMode {
+    VIEW,
+    EDIT,
+    READER
+}

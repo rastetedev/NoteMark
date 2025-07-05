@@ -47,7 +47,7 @@ class NoteFormViewModel(
                             noteContent = note.content,
                             noteCreated = note.createdAt,
                             temporaryNoteTitle = note.title,
-                            temporaryNoteContent = note.content,
+                            temporaryNoteContent = note.content
                         )
                     }
                 }
@@ -57,17 +57,13 @@ class NoteFormViewModel(
 
     private fun showLoading() {
         _screenState.update {
-            it.copy(
-                isLoading = true
-            )
+            it.copy(isLoading = true)
         }
     }
 
     private fun hideLoading() {
         _screenState.update {
-            it.copy(
-                isLoading = false
-            )
+            it.copy(isLoading = false)
         }
     }
 
@@ -137,8 +133,22 @@ class NoteFormViewModel(
 
             NoteFormAction.CloseDiscardChangesDialog -> {
                 _screenState.update {
+                    it.copy(showDiscardChangesDialog = false)
+                }
+            }
+
+            NoteFormAction.ChangeToEditMode -> {
+                _screenState.update {
                     it.copy(
-                        showDiscardChangesDialog = false
+                        mode = NoteFormMode.EDIT
+                    )
+                }
+            }
+
+            NoteFormAction.ChangeToReaderMode -> {
+                _screenState.update {
+                    it.copy(
+                        mode = NoteFormMode.READER
                     )
                 }
             }

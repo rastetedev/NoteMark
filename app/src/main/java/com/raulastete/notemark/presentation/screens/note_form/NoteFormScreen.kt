@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,6 +42,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raulastete.notemark.R
 import com.raulastete.notemark.presentation.designsystem.core.NoteMarkTheme
 import com.raulastete.notemark.presentation.screens.note_form.components.DiscardChangesDialog
+import com.raulastete.notemark.presentation.screens.note_form.components.FormModeFabButton
 import com.raulastete.notemark.presentation.utils.DeviceMode
 import com.raulastete.notemark.presentation.utils.ObserveAsEvents
 import org.koin.androidx.compose.koinViewModel
@@ -81,7 +83,7 @@ fun NoteFormRoot(
         }
     }
 
-    if(screenState.isLoading){
+    if (screenState.isLoading) {
         Box(
             Modifier
                 .fillMaxSize()
@@ -146,7 +148,19 @@ fun NoteFormScreen(
                     }
                 }
             )
-        }
+        },
+        floatingActionButton = {
+            FormModeFabButton(
+                noteFormMode = state.mode,
+                onClickEditMode = {
+                    onAction(NoteFormAction.ChangeToEditMode)
+                },
+                onClickReaderMode = {
+                    onAction(NoteFormAction.ChangeToReaderMode)
+                }
+            )
+        },
+        floatingActionButtonPosition = FabPosition.Center
     ) { innerPadding ->
 
         Column(
