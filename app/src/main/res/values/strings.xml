@@ -46,5 +46,8 @@
     <string name="keep_editing_button">Keep Editing</string>
     <string name="settings_screen_title">SETTINGS</string>
     <string name="logout">Log out</string>
+    <string name="date_created_metadata">Date created</string>
+    <string name="date_last_edited_metadata">Last edited</string>
+    <string name="note_content_hint">Put your content here</string>
 
 </resources>

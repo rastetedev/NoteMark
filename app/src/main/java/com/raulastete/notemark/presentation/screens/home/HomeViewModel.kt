@@ -2,7 +2,7 @@ package com.raulastete.notemark.presentation.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.raulastete.notemark.domain.usecase.FormatNoteDateUseCase
+import com.raulastete.notemark.domain.usecase.FormatNoteDateInCardUseCase
 import com.raulastete.notemark.domain.usecase.FormatUsernameInitialsUseCase
 import com.raulastete.notemark.domain.entity.Note
 import com.raulastete.notemark.domain.repository.NoteRepository
@@ -22,7 +22,7 @@ import kotlin.uuid.Uuid
 
 class HomeViewModel(
     private val formatUsernameInitialsUseCase: FormatUsernameInitialsUseCase,
-    private val formatNoteDateUseCase: FormatNoteDateUseCase,
+    private val formatNoteDateInCardUseCase: FormatNoteDateInCardUseCase,
     private val noteRepository: NoteRepository
 ) : ViewModel() {
 
@@ -44,7 +44,7 @@ class HomeViewModel(
                         noteList = noteList.map { note ->
                             NoteCardUiState(
                                 id = note.id,
-                                formattedDate = formatNoteDateUseCase(note.createdAt),
+                                formattedDate = formatNoteDateInCardUseCase(note.createdAt),
                                 title = note.title,
                                 content = note.content
                             )

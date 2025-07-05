@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.raulastete.notemark.domain.Result
 import com.raulastete.notemark.domain.entity.Note
 import com.raulastete.notemark.domain.repository.NoteRepository
+import com.raulastete.notemark.domain.usecase.FormatNoteDateInFormUseCase
 import com.raulastete.notemark.presentation.navigation.Destination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ import kotlin.time.Instant
 
 class NoteFormViewModel(
     private val noteRepository: NoteRepository,
+    private val formatNoteDateInFormUseCase: FormatNoteDateInFormUseCase,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
@@ -45,7 +47,8 @@ class NoteFormViewModel(
                             isLoading = false,
                             noteTitle = note.title,
                             noteContent = note.content,
-                            noteCreated = note.createdAt,
+                            noteCreated = formatNoteDateInFormUseCase(note.createdAt),
+                            noteUpdated = formatNoteDateInFormUseCase(note.lastEditedAt),
                             temporaryNoteTitle = note.title,
                             temporaryNoteContent = note.content
                         )

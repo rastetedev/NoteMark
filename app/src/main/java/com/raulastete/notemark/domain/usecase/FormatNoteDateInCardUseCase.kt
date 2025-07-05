@@ -10,7 +10,7 @@ import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
 
-class FormatNoteDateUseCase(private val dispatcher: CoroutineDispatcher = Dispatchers.Default) {
+class FormatNoteDateInCardUseCase(private val dispatcher: CoroutineDispatcher = Dispatchers.Default) {
 
     @OptIn(ExperimentalTime::class)
     suspend operator fun invoke(isoString: String): String {

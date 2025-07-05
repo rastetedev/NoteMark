@@ -1,6 +1,7 @@
 package com.raulastete.notemark.presentation.screens.note_form
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raulastete.notemark.R
 import com.raulastete.notemark.presentation.designsystem.core.NoteMarkTheme
 import com.raulastete.notemark.presentation.screens.note_form.components.DiscardChangesDialog
+import com.raulastete.notemark.presentation.screens.note_form.components.FormMetadata
 import com.raulastete.notemark.presentation.screens.note_form.components.FormModeFabButton
 import com.raulastete.notemark.presentation.utils.DeviceMode
 import com.raulastete.notemark.presentation.utils.ObserveAsEvents
@@ -185,7 +187,30 @@ fun NoteFormScreen(
                 cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
             )
 
-            HorizontalDivider(Modifier.height(24.dp))
+            HorizontalDivider()
+
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 20.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+
+                FormMetadata(
+                    title = stringResource(R.string.date_created_metadata),
+                    content = state.noteCreated,
+                    modifier = Modifier.weight(1f)
+                )
+
+                FormMetadata(
+                    title = stringResource(R.string.date_last_edited_metadata),
+                    content = state.noteUpdated,
+                    modifier = Modifier.weight(1f)
+                )
+
+            }
+
+            HorizontalDivider()
 
             BasicTextField(
                 modifier = Modifier
@@ -199,7 +224,7 @@ fun NoteFormScreen(
                 decorationBox = { innerTextField ->
                     if (state.temporaryNoteContent.isEmpty()) {
                         Text(
-                            "Put your content here",
+                            stringResource(R.string.note_content_hint),
                             style = MaterialTheme.typography.bodyLarge.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             )
