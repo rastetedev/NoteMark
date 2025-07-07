@@ -6,8 +6,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.raulastete.notemark.R
-import com.raulastete.notemark.presentation.screens.note_form.FADE_OUT_ANIMATION_READER_BUTTONS
+import com.raulastete.notemark.presentation.screens.note_form.IN_ANIMATION_READER_BUTTONS
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormUiState
+import com.raulastete.notemark.presentation.screens.note_form.OUT_ANIMATION_READER_BUTTONS
 
 @Composable
 fun FormTopBarTitle(state: NoteFormUiState) {
@@ -19,7 +20,8 @@ fun FormTopBarTitle(state: NoteFormUiState) {
         is NoteFormUiState.Reader -> {
             AnimatedVisibility(
                 state.showButtons,
-                exit = FADE_OUT_ANIMATION_READER_BUTTONS
+                exit = OUT_ANIMATION_READER_BUTTONS,
+                enter = IN_ANIMATION_READER_BUTTONS
             ) {
                 Text(
                     stringResource(R.string.all_notes),

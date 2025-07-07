@@ -8,9 +8,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import com.raulastete.notemark.presentation.screens.note_form.FADE_OUT_ANIMATION_READER_BUTTONS
+import com.raulastete.notemark.presentation.screens.note_form.IN_ANIMATION_READER_BUTTONS
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormAction
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormUiState
+import com.raulastete.notemark.presentation.screens.note_form.OUT_ANIMATION_READER_BUTTONS
 
 @Composable
 fun FormNavigationIcon(
@@ -34,7 +35,8 @@ fun FormNavigationIcon(
         is NoteFormUiState.Reader -> {
             AnimatedVisibility(
                 state.showButtons,
-                exit = FADE_OUT_ANIMATION_READER_BUTTONS
+                exit = OUT_ANIMATION_READER_BUTTONS,
+                enter = IN_ANIMATION_READER_BUTTONS,
             ) {
                 IconButton(onClick = {
                     onAction(NoteFormAction.ToggleReaderMode)

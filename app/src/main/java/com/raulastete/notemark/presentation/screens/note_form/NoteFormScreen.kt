@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -32,6 +34,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -80,7 +83,7 @@ fun NoteFormRoot(
     }
 
     fun requestFocusOnEditMode() {
-        if( uiState is NoteFormUiState.Edit) {
+        if (uiState is NoteFormUiState.Edit) {
             focusRequester.requestFocus()
         }
     }
@@ -101,7 +104,7 @@ fun NoteFormRoot(
         requestFocusOnEditMode()
     }
 
-    if(uiState is NoteFormUiState.InitialLoading) {
+    if (uiState is NoteFormUiState.InitialLoading) {
         CircularProgressIndicator()
     } else {
         Box {
@@ -214,8 +217,12 @@ fun NoteFormLandscapeScreen(
 ) {
 
     Scaffold(
-        modifier = Modifier.clickable {
-            onAction(NoteFormAction.TouchScreen)
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = {
+                    onAction(NoteFormAction.TouchScreen)
+                }
+            )
         },
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         floatingActionButton = {
@@ -268,6 +275,11 @@ fun NoteFormContent(
     focusRequester: FocusRequester? = null,
     onAction: (NoteFormAction) -> Unit
 ) {
+    val scrollState = rememberScrollState()
+
+    LaunchedEffect(scrollState.value) {
+        onAction(NoteFormAction.DismissReaderButtons)
+    }
 
     val title = when (state) {
         is NoteFormUiState.Edit -> state.temporaryTitle
@@ -338,28 +350,34 @@ fun NoteFormContent(
 
         HorizontalDivider()
 
-        BasicTextField(
-            modifier = Modifier
+        Box(
+            Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            value = content,
-            onValueChange = {
-                onAction(NoteFormAction.ContentChanged(it))
-            },
-            enabled = contentIsEditable,
-            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-            decorationBox = { innerTextField ->
-                if (content.isEmpty()) {
-                    Text(
-                        stringResource(R.string.note_content_hint),
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                .verticalScroll(scrollState)
+        ) {
+            BasicTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                value = content,
+                onValueChange = {
+                    onAction(NoteFormAction.ContentChanged(it))
+                },
+                enabled = contentIsEditable,
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+                decorationBox = { innerTextField ->
+                    if (content.isEmpty()) {
+                        Text(
+                            stringResource(R.string.note_content_hint),
+                            style = MaterialTheme.typography.bodyLarge.copy(
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            )
                         )
-                    )
-                }
-                innerTextField()
-            },
-            cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
-        )
+                    }
+                    innerTextField()
+                },
+                cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
+            )
+        }
     }
 }

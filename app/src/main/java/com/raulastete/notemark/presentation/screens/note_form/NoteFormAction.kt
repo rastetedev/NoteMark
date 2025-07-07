@@ -14,4 +14,6 @@ sealed interface NoteFormAction {
     object CancelDiscardChanges : NoteFormAction
 
     object TouchScreen : NoteFormAction
+
+    object DismissReaderButtons : NoteFormAction
 }

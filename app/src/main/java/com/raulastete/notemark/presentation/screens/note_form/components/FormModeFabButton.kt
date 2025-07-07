@@ -17,9 +17,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.raulastete.notemark.R
-import com.raulastete.notemark.presentation.screens.note_form.FADE_OUT_ANIMATION_READER_BUTTONS
+import com.raulastete.notemark.presentation.screens.note_form.IN_ANIMATION_READER_BUTTONS
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormAction
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormUiState
+import com.raulastete.notemark.presentation.screens.note_form.OUT_ANIMATION_READER_BUTTONS
 
 @Composable
 fun FormModeFabButton(
@@ -61,7 +62,8 @@ fun FormModeFabButton(
 
     AnimatedVisibility(
         visible = (noteFormUiState is NoteFormUiState.Reader && noteFormUiState.showButtons.not()).not(),
-        exit = FADE_OUT_ANIMATION_READER_BUTTONS
+        exit = OUT_ANIMATION_READER_BUTTONS,
+        enter = IN_ANIMATION_READER_BUTTONS
     ) {
 
         Row(

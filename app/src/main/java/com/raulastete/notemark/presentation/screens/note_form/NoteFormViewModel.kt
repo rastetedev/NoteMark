@@ -11,6 +11,7 @@ import com.raulastete.notemark.domain.usecase.FormatNoteDateInFormUseCase
 import com.raulastete.notemark.presentation.navigation.Destination
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -33,7 +34,7 @@ class NoteFormViewModel(
     val events = eventChannel.receiveAsFlow()
 
     var currentNoteId: String? = null
-    var fadeButtonsInReaderModeAnimationJob: Job? = null
+    var fadeOutButtonsInReaderModeAnimationJob: Job? = null
 
     init {
         savedStateHandle.toRoute<Destination.NoteForm>().noteId.let { noteId ->
@@ -78,7 +79,8 @@ class NoteFormViewModel(
             NoteFormAction.DiscardChanges -> showDiscardDialog(true)
             NoteFormAction.CancelDiscardChanges -> showDiscardDialog(false)
             NoteFormAction.ConfirmDiscardChanges -> discardChangesAndSwitchToViewMode()
-            NoteFormAction.TouchScreen -> showButtonsInReaderMode()
+            NoteFormAction.TouchScreen -> toggleButtonsVisibilityInReaderMode()
+            NoteFormAction.DismissReaderButtons -> dismissReaderButtons()
         }
     }
 
@@ -133,8 +135,8 @@ class NoteFormViewModel(
     private fun startCounterToDismissButtons(
         delayMillis: Long = FADE_ANIMATION_DURATION_IN_MILLIS
     ) {
-        fadeButtonsInReaderModeAnimationJob = viewModelScope.launch {
-            kotlinx.coroutines.delay(delayMillis)
+        fadeOutButtonsInReaderModeAnimationJob = viewModelScope.launch {
+           delay(delayMillis)
             _uiState.update { currentState ->
                 if (currentState is NoteFormUiState.Reader) {
                     currentState.copy(showButtons = false)
@@ -145,16 +147,29 @@ class NoteFormViewModel(
         }
     }
 
-    private fun showButtonsInReaderMode() {
-        fadeButtonsInReaderModeAnimationJob?.cancel()
+    private fun toggleButtonsVisibilityInReaderMode() {
+        fadeOutButtonsInReaderModeAnimationJob?.cancel()
         _uiState.update { currentState ->
             if (currentState is NoteFormUiState.Reader) {
-                currentState.copy(showButtons = true)
+                currentState.copy(showButtons = currentState.showButtons.not())
             } else {
                 currentState
             }
         }
-        startCounterToDismissButtons()
+        if(uiState.value is NoteFormUiState.Reader && (uiState.value as NoteFormUiState.Reader).showButtons) {
+            startCounterToDismissButtons(5000L)
+        }
+    }
+
+    private fun dismissReaderButtons() {
+        fadeOutButtonsInReaderModeAnimationJob?.cancel()
+        _uiState.update { currentState ->
+            if (currentState is NoteFormUiState.Reader) {
+                currentState.copy(showButtons = false)
+            } else {
+                currentState
+            }
+        }
     }
 
     private fun switchToViewMode() {
