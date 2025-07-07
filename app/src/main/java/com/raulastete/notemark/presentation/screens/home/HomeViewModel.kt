@@ -2,10 +2,9 @@ package com.raulastete.notemark.presentation.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.raulastete.notemark.domain.repository.NoteRepository
 import com.raulastete.notemark.domain.usecase.FormatNoteDateInCardUseCase
 import com.raulastete.notemark.domain.usecase.FormatUsernameInitialsUseCase
-import com.raulastete.notemark.domain.entity.Note
-import com.raulastete.notemark.domain.repository.NoteRepository
 import com.raulastete.notemark.presentation.screens.home.components.NoteCardUiState
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +13,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
 class HomeViewModel(
     private val formatUsernameInitialsUseCase: FormatUsernameInitialsUseCase,
@@ -55,15 +51,9 @@ class HomeViewModel(
         }
     }
 
-    private fun showLoading(){
+    private fun showLoading(show: Boolean = true) {
         _screenState.update {
-            it.copy(showLoading = true)
-        }
-    }
-
-    private fun hideLoading(){
-        _screenState.update {
-            it.copy(showLoading = false)
+            it.copy(showLoading = show)
         }
     }
 
@@ -71,24 +61,8 @@ class HomeViewModel(
     fun onAction(action: HomeAction.NoteAction) {
         when (action) {
             HomeAction.NoteAction.CreateNote -> {
-                showLoading()
                 viewModelScope.launch {
-                    val noteId = Uuid.random().toString()
-
-                    val timestamp =
-                        Instant.fromEpochMilliseconds(Clock.System.now().toEpochMilliseconds())
-                            .toString()
-                    noteRepository.upsertNote(
-                        Note(
-                            id = noteId,
-                            title = "Note Title",
-                            content = "",
-                            createdAt = timestamp,
-                            lastEditedAt = timestamp
-                        )
-                    )
-                    hideLoading()
-                    eventChannel.send(HomeEvent.OnNoteCreated(noteId))
+                    eventChannel.send(HomeEvent.OnCreateNote)
                 }
             }
 

@@ -105,7 +105,14 @@ fun NoteFormRoot(
     }
 
     if (uiState is NoteFormUiState.InitialLoading) {
-        CircularProgressIndicator()
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(color = MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
     } else {
         Box {
             when (deviceMode) {

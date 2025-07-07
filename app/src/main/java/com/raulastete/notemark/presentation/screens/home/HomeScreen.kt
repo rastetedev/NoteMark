@@ -47,15 +47,15 @@ import kotlin.time.ExperimentalTime
 fun HomeRoot(
     deviceMode: DeviceMode,
     viewModel: HomeViewModel = koinViewModel(),
-    navigateToNoteForm: (noteId: String) -> Unit,
+    navigateToNoteForm: (noteId: String?) -> Unit,
     navigateToSettings: () -> Unit
 ) {
     val state by viewModel.screenState.collectAsStateWithLifecycle()
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
-            is HomeEvent.OnNoteCreated -> {
-                navigateToNoteForm(event.noteId)
+            is HomeEvent.OnCreateNote -> {
+                navigateToNoteForm(null)
             }
         }
     }

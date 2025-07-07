@@ -20,6 +20,8 @@ import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class NoteFormViewModel(
     private val noteRepository: NoteRepository,
@@ -43,17 +45,35 @@ class NoteFormViewModel(
         }
     }
 
-    private fun loadNote(noteId: String) {
+    @OptIn(ExperimentalTime::class)
+    private fun loadNote(noteId: String?) {
         viewModelScope.launch {
             _uiState.value = NoteFormUiState.InitialLoading
-            noteRepository.getNote(noteId).map { note ->
-                note?.let {
-                    val noteData = mapNoteToNoteData(note)
-                    _uiState.value = NoteFormUiState.View(noteData = noteData, isLoading = false)
-                } ?: run {
-                    //TODO: Refactor later to handle the case when the note is not found
-                    eventChannel.send(NoteFormEvent.OnGoBack)
+            if (noteId != null) {
+                noteRepository.getNote(noteId).map { note ->
+                    note?.let {
+                        val noteData = mapNoteToNoteData(note)
+                        _uiState.value =
+                            NoteFormUiState.View(noteData = noteData, isLoading = false)
+                    }
                 }
+            } else {
+
+                val timestamp =
+                    Instant.fromEpochMilliseconds(Clock.System.now().toEpochMilliseconds())
+                        .toString()
+
+                _uiState.value = NoteFormUiState.Edit(
+                    noteData = NoteData(
+                        title = "Note Title",
+                        content = "",
+                        createdAtIso8601 = timestamp,
+                        updatedAtIso8601 = timestamp,
+                        createdAtFormatted = formatNoteDateInFormUseCase(timestamp),
+                        updatedAtFormatted = formatNoteDateInFormUseCase(timestamp)
+                    ),
+                    isLoading = false
+                )
             }
         }
     }
@@ -136,7 +156,7 @@ class NoteFormViewModel(
         delayMillis: Long = FADE_ANIMATION_DURATION_IN_MILLIS
     ) {
         fadeOutButtonsInReaderModeAnimationJob = viewModelScope.launch {
-           delay(delayMillis)
+            delay(delayMillis)
             _uiState.update { currentState ->
                 if (currentState is NoteFormUiState.Reader) {
                     currentState.copy(showButtons = false)
@@ -156,7 +176,7 @@ class NoteFormViewModel(
                 currentState
             }
         }
-        if(uiState.value is NoteFormUiState.Reader && (uiState.value as NoteFormUiState.Reader).showButtons) {
+        if (uiState.value is NoteFormUiState.Reader && (uiState.value as NoteFormUiState.Reader).showButtons) {
             startCounterToDismissButtons(5000L)
         }
     }
@@ -190,7 +210,7 @@ class NoteFormViewModel(
                 editState.noteData.content != editState.temporaryContent
     }
 
-    @OptIn(ExperimentalTime::class)
+    @OptIn(ExperimentalTime::class, ExperimentalUuidApi::class)
     private fun saveNote() {
         val currentEditState = _uiState.value as? NoteFormUiState.Edit ?: return
 
@@ -198,7 +218,7 @@ class NoteFormViewModel(
             _uiState.value = currentEditState.copy(isLoading = true)
 
             val noteToSave = Note(
-                id = currentNoteId!!,
+                id = currentNoteId ?: Uuid.random().toString(),
                 title = currentEditState.temporaryTitle.trim(),
                 content = currentEditState.temporaryContent.trim(),
                 createdAt = currentEditState.noteData.createdAtIso8601,
