@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.pm.ActivityInfo
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -213,6 +214,9 @@ fun NoteFormLandscapeScreen(
 ) {
 
     Scaffold(
+        modifier = Modifier.clickable {
+            onAction(NoteFormAction.TouchScreen)
+        },
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
         floatingActionButton = {
             FormModeFabButton(

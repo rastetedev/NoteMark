@@ -1,5 +1,6 @@
 package com.raulastete.notemark.presentation.screens.note_form.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,13 +17,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.raulastete.notemark.R
+import com.raulastete.notemark.presentation.screens.note_form.FADE_OUT_ANIMATION_READER_BUTTONS
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormAction
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormUiState
 
 @Composable
 fun FormModeFabButton(
     noteFormUiState: NoteFormUiState,
-    onAction : (NoteFormAction) -> Unit
+    onAction: (NoteFormAction) -> Unit
 ) {
 
     val backgroundEditButtonColor = animateColorAsState(
@@ -57,46 +59,54 @@ fun FormModeFabButton(
         }
     )
 
-    Row(
-        Modifier
-            .background(
-                color = MaterialTheme.colorScheme.surface,
-                shape = RoundedCornerShape(16.dp)
-            )
-            .padding(4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    AnimatedVisibility(
+        visible = (noteFormUiState is NoteFormUiState.Reader && noteFormUiState.showButtons.not()).not(),
+        exit = FADE_OUT_ANIMATION_READER_BUTTONS
     ) {
-        IconButton(
-            colors = IconButtonDefaults.iconButtonColors(
-                contentColor = foregroundEditButtonColor.value
-            ),
-            onClick = { onAction(NoteFormAction.ToggleEditMode) },
-            modifier = Modifier
+
+        Row(
+            Modifier
                 .background(
-                    shape = RoundedCornerShape(12.dp),
-                    color = backgroundEditButtonColor.value
+                    color = MaterialTheme.colorScheme.surface,
+                    shape = RoundedCornerShape(16.dp)
                 )
+                .padding(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.edit_mode),
-                contentDescription = null
-            )
-        }
-        IconButton(
-            colors = IconButtonDefaults.iconButtonColors(
-                contentColor = foregroundReaderButtonColor.value
-            ),
-            onClick = { onAction(NoteFormAction.ToggleReaderMode) },
-            modifier = Modifier
-                .background(
-                    shape = RoundedCornerShape(12.dp),
-                    color = backgroundReaderButtonColor.value
+            IconButton(
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = foregroundEditButtonColor.value
+                ),
+                onClick = { onAction(NoteFormAction.ToggleEditMode) },
+                modifier = Modifier
+                    .background(
+                        shape = RoundedCornerShape(12.dp),
+                        color = backgroundEditButtonColor.value
+                    )
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.edit_mode),
+                    contentDescription = null
                 )
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.reader_mode),
-                contentDescription = null
-            )
+            }
+            IconButton(
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = foregroundReaderButtonColor.value
+                ),
+                onClick = { onAction(NoteFormAction.ToggleReaderMode) },
+                modifier = Modifier
+                    .background(
+                        shape = RoundedCornerShape(12.dp),
+                        color = backgroundReaderButtonColor.value
+                    )
+            ) {
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.reader_mode),
+                    contentDescription = null
+                )
+            }
         }
     }
+
+
 }

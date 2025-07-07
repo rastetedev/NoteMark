@@ -1,5 +1,6 @@
 package com.raulastete.notemark.presentation.screens.note_form.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.Close
@@ -7,6 +8,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import com.raulastete.notemark.presentation.screens.note_form.FADE_OUT_ANIMATION_READER_BUTTONS
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormAction
 import com.raulastete.notemark.presentation.screens.note_form.NoteFormUiState
 
@@ -30,12 +32,15 @@ fun FormNavigationIcon(
         }
 
         is NoteFormUiState.Reader -> {
-            if (state.showButtons) {
+            AnimatedVisibility(
+                state.showButtons,
+                exit = FADE_OUT_ANIMATION_READER_BUTTONS
+            ) {
                 IconButton(onClick = {
-                    onAction(NoteFormAction.ToggleEditMode)
+                    onAction(NoteFormAction.ToggleReaderMode)
                 }) {
                     Icon(
-                        Icons.Default.Close,
+                        Icons.Default.ArrowBackIosNew,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )

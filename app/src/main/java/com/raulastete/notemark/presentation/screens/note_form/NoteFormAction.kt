@@ -12,4 +12,6 @@ sealed interface NoteFormAction {
     object DiscardChanges : NoteFormAction
     object ConfirmDiscardChanges : NoteFormAction
     object CancelDiscardChanges : NoteFormAction
+
+    object TouchScreen : NoteFormAction
 }
