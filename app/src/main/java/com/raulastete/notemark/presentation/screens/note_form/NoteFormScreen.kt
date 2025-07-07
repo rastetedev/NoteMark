@@ -285,7 +285,9 @@ fun NoteFormContent(
     val scrollState = rememberScrollState()
 
     LaunchedEffect(scrollState.value) {
-        onAction(NoteFormAction.DismissReaderButtons)
+        if(scrollState.isScrollInProgress){
+            onAction(NoteFormAction.DismissReaderButtons)
+        }
     }
 
     val title = when (state) {

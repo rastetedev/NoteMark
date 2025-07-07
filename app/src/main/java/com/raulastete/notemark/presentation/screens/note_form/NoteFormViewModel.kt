@@ -153,7 +153,7 @@ class NoteFormViewModel(
     }
 
     private fun startCounterToDismissButtons(
-        delayMillis: Long = FADE_ANIMATION_DURATION_IN_MILLIS
+        delayMillis: Long = FADE_DELAY_DURATION_IN_MILLIS
     ) {
         fadeOutButtonsInReaderModeAnimationJob = viewModelScope.launch {
             delay(delayMillis)
@@ -177,7 +177,7 @@ class NoteFormViewModel(
             }
         }
         if (uiState.value is NoteFormUiState.Reader && (uiState.value as NoteFormUiState.Reader).showButtons) {
-            startCounterToDismissButtons(5000L)
+            startCounterToDismissButtons()
         }
     }
 

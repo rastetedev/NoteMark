@@ -45,3 +45,5 @@ sealed interface NoteFormUiState {
 val OUT_ANIMATION_READER_BUTTONS = fadeOut(tween(durationMillis = FADE_ANIMATION_DURATION_IN_MILLIS.toInt()))
 val IN_ANIMATION_READER_BUTTONS = fadeIn(tween(durationMillis = FADE_ANIMATION_DURATION_IN_MILLIS.toInt()))
 const val FADE_ANIMATION_DURATION_IN_MILLIS = 1500L
+
+const val FADE_DELAY_DURATION_IN_MILLIS = 5000L
