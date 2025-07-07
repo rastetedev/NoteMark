@@ -16,17 +16,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.raulastete.notemark.R
-import com.raulastete.notemark.presentation.screens.note_form.NoteFormMode
+import com.raulastete.notemark.presentation.screens.note_form.NoteFormAction
+import com.raulastete.notemark.presentation.screens.note_form.NoteFormUiState
 
 @Composable
 fun FormModeFabButton(
-    noteFormMode: NoteFormMode,
-    onClickEditMode: () -> Unit,
-    onClickReaderMode: () -> Unit,
+    noteFormUiState: NoteFormUiState,
+    onAction : (NoteFormAction) -> Unit
 ) {
 
     val backgroundEditButtonColor = animateColorAsState(
-        if (noteFormMode == NoteFormMode.EDIT) {
+        if (noteFormUiState is NoteFormUiState.Edit) {
             MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
         } else {
             MaterialTheme.colorScheme.surface
@@ -34,7 +34,7 @@ fun FormModeFabButton(
     )
 
     val foregroundEditButtonColor = animateColorAsState(
-        if (noteFormMode == NoteFormMode.EDIT) {
+        if (noteFormUiState is NoteFormUiState.Edit) {
             MaterialTheme.colorScheme.primary
         } else {
             MaterialTheme.colorScheme.onSurface
@@ -42,7 +42,7 @@ fun FormModeFabButton(
     )
 
     val backgroundReaderButtonColor = animateColorAsState(
-        if (noteFormMode == NoteFormMode.READER) {
+        if (noteFormUiState is NoteFormUiState.Reader) {
             MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
         } else {
             MaterialTheme.colorScheme.surface
@@ -50,7 +50,7 @@ fun FormModeFabButton(
     )
 
     val foregroundReaderButtonColor = animateColorAsState(
-        if (noteFormMode == NoteFormMode.READER) {
+        if (noteFormUiState is NoteFormUiState.Reader) {
             MaterialTheme.colorScheme.primary
         } else {
             MaterialTheme.colorScheme.onSurface
@@ -70,7 +70,7 @@ fun FormModeFabButton(
             colors = IconButtonDefaults.iconButtonColors(
                 contentColor = foregroundEditButtonColor.value
             ),
-            onClick = onClickEditMode,
+            onClick = { onAction(NoteFormAction.ToggleEditMode) },
             modifier = Modifier
                 .background(
                     shape = RoundedCornerShape(12.dp),
@@ -86,7 +86,7 @@ fun FormModeFabButton(
             colors = IconButtonDefaults.iconButtonColors(
                 contentColor = foregroundReaderButtonColor.value
             ),
-            onClick = onClickReaderMode,
+            onClick = { onAction(NoteFormAction.ToggleReaderMode) },
             modifier = Modifier
                 .background(
                     shape = RoundedCornerShape(12.dp),

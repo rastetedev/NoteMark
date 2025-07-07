@@ -1,21 +1,39 @@
 package com.raulastete.notemark.presentation.screens.note_form
 
-data class NoteFormState(
-    val isLoading: Boolean = false,
-    val noteTitle: String = "",
-    val noteContent: String = "",
-    val noteCreated: String = "",
-    val noteUpdated: String = "",
-    val temporaryNoteTitle: String = "",
-    val temporaryNoteContent: String = "",
-    val formattedNoteCreated: String = "",
-    val formattedNoteUpdated: String = "",
-    val showDiscardChangesDialog: Boolean = false,
-    val mode: NoteFormMode = NoteFormMode.VIEW
+data class NoteData(
+    val title: String = "",
+    val content: String = "",
+    val createdAtIso8601: String = "",
+    val updatedAtIso8601: String = "",
+    val createdAtFormatted: String = "",
+    val updatedAtFormatted: String = ""
 )
 
-enum class NoteFormMode {
-    VIEW,
-    EDIT,
-    READER
+sealed interface NoteFormUiState {
+    val noteData: NoteData
+    val isLoading: Boolean
+
+    data class View(
+        override val noteData: NoteData,
+        override val isLoading: Boolean = false
+    ) : NoteFormUiState
+
+    data class Edit(
+        override val noteData: NoteData,
+        val temporaryTitle: String = noteData.title,
+        val temporaryContent: String = noteData.content,
+        val showDiscardChangesDialog: Boolean = false,
+        override val isLoading: Boolean = false
+    ) : NoteFormUiState
+
+    data class Reader(
+        override val noteData: NoteData,
+        override val isLoading: Boolean = false,
+        val showButtons: Boolean = true
+    ) : NoteFormUiState
+
+    data object InitialLoading : NoteFormUiState {
+        override val noteData: NoteData get() = NoteData()
+        override val isLoading: Boolean get() = true
+    }
 }

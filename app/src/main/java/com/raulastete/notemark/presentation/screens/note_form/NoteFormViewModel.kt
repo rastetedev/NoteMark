@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
-import com.raulastete.notemark.domain.Result
 import com.raulastete.notemark.domain.entity.Note
+import com.raulastete.notemark.domain.map
 import com.raulastete.notemark.domain.repository.NoteRepository
 import com.raulastete.notemark.domain.usecase.FormatNoteDateInFormUseCase
 import com.raulastete.notemark.presentation.navigation.Destination
@@ -25,139 +25,179 @@ class NoteFormViewModel(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _screenState = MutableStateFlow(NoteFormState())
-    val screenState = _screenState.asStateFlow()
-    var noteId = ""
+    private val _uiState = MutableStateFlow<NoteFormUiState>(NoteFormUiState.InitialLoading)
+    val uiState = _uiState.asStateFlow()
+
+    var currentNoteId: String? = null
 
     private val eventChannel = Channel<NoteFormEvent>()
     val events = eventChannel.receiveAsFlow()
 
     init {
-        val args = savedStateHandle.toRoute<Destination.NoteForm>()
-        noteId = args.noteId
+        savedStateHandle.toRoute<Destination.NoteForm>().noteId.let { noteId ->
+            currentNoteId = noteId
+            loadNote(noteId)
+        }
+    }
 
+    private fun loadNote(noteId: String) {
         viewModelScope.launch {
-            showLoading()
-            val result = noteRepository.getNote(noteId)
-
-            if (result is Result.Success) {
-                result.data?.let { note ->
-                    _screenState.update {
-                        it.copy(
-                            isLoading = false,
-                            noteTitle = note.title,
-                            noteContent = note.content,
-                            noteCreated = note.createdAt,
-                            noteUpdated = note.lastEditedAt,
-                            formattedNoteCreated = formatNoteDateInFormUseCase(note.createdAt),
-                            formattedNoteUpdated = formatNoteDateInFormUseCase(note.lastEditedAt),
-                            temporaryNoteTitle = note.title,
-                            temporaryNoteContent = note.content
-                        )
-                    }
+            _uiState.value = NoteFormUiState.InitialLoading
+            noteRepository.getNote(noteId).map { note ->
+                note?.let {
+                    val noteData = mapNoteToNoteData(note)
+                    _uiState.value = NoteFormUiState.View(noteData = noteData, isLoading = false)
+                } ?: run {
+                    //TODO: Refactor later to handle the case when the note is not found
+                    eventChannel.send(NoteFormEvent.OnGoBack)
                 }
             }
         }
     }
 
-    private fun showLoading() {
-        _screenState.update {
-            it.copy(isLoading = true)
+    private suspend fun mapNoteToNoteData(note: Note): NoteData {
+        return NoteData(
+            title = note.title,
+            content = note.content,
+            createdAtIso8601 = note.createdAt,
+            updatedAtIso8601 = note.lastEditedAt,
+            createdAtFormatted = formatNoteDateInFormUseCase(note.createdAt),
+            updatedAtFormatted = formatNoteDateInFormUseCase(note.lastEditedAt)
+        )
+    }
+
+    fun onAction(action: NoteFormAction) {
+        when (action) {
+            is NoteFormAction.TitleChanged -> handleTitleChanged(action.title)
+            is NoteFormAction.ContentChanged -> handleContentChanged(action.content)
+            NoteFormAction.ToggleEditMode -> switchToEditMode()
+            NoteFormAction.ToggleReaderMode -> switchToReaderMode()
+            NoteFormAction.SaveNote -> saveNote()
+            NoteFormAction.DiscardChanges -> showDiscardDialog(true)
+            NoteFormAction.CancelDiscardChanges -> showDiscardDialog(false)
+            NoteFormAction.ConfirmDiscardChanges -> discardChangesAndSwitchToViewMode()
         }
     }
 
-    private fun hideLoading() {
-        _screenState.update {
-            it.copy(isLoading = false)
+    fun handleTitleChanged(newTitle: String) {
+        _uiState.update { currentState ->
+            if (currentState is NoteFormUiState.Edit) {
+                currentState.copy(temporaryTitle = newTitle)
+            } else {
+                currentState
+            }
         }
+    }
+
+    private fun handleContentChanged(newContent: String) {
+        _uiState.update { currentState ->
+            if (currentState is NoteFormUiState.Edit) {
+                currentState.copy(temporaryContent = newContent)
+            } else {
+                currentState
+            }
+        }
+    }
+
+    private fun switchToEditMode() {
+        _uiState.update { currentState ->
+            currentState as? NoteFormUiState.Edit
+                ?: NoteFormUiState.Edit(
+                    noteData = currentState.noteData,
+                    isLoading = currentState.isLoading
+                )
+        }
+    }
+
+    private fun switchToReaderMode() {
+
+        val currentMode = uiState.value
+
+        if (currentMode is NoteFormUiState.Reader) {
+            switchToViewMode()
+        } else {
+            _uiState.update { currentState ->
+                currentState as? NoteFormUiState.Reader
+                    ?: NoteFormUiState.Reader(
+                        noteData = currentState.noteData,
+                        isLoading = currentState.isLoading
+                    )
+            }
+        }
+    }
+
+    private fun switchToViewMode() {
+        _uiState.update { currentState ->
+
+            if (currentState is NoteFormUiState.Edit && hasTemporaryChanges(currentState)) {
+                currentState.copy(showDiscardChangesDialog = true)
+            } else currentState as? NoteFormUiState.View
+                ?: NoteFormUiState.View(
+                    noteData = currentState.noteData,
+                    isLoading = currentState.isLoading
+                )
+        }
+    }
+
+    private fun hasTemporaryChanges(editState: NoteFormUiState.Edit): Boolean {
+        return editState.noteData.title != editState.temporaryTitle ||
+                editState.noteData.content != editState.temporaryContent
     }
 
     @OptIn(ExperimentalTime::class)
-    fun onAction(action: NoteFormAction) {
-        when (action) {
+    private fun saveNote() {
+        val currentEditState = _uiState.value as? NoteFormUiState.Edit ?: return
 
-            is NoteFormAction.NoteContentChanged -> {
-                _screenState.update {
-                    it.copy(
-                        temporaryNoteContent = action.content
+        viewModelScope.launch {
+            _uiState.value = currentEditState.copy(isLoading = true)
+
+            val noteToSave = Note(
+                id = currentNoteId!!,
+                title = currentEditState.temporaryTitle.trim(),
+                content = currentEditState.temporaryContent.trim(),
+                createdAt = currentEditState.noteData.createdAtIso8601,
+                lastEditedAt = Instant.fromEpochMilliseconds(
+                    Clock.System.now().toEpochMilliseconds()
+                ).toString(),
+            )
+
+            noteRepository.upsertNote(noteToSave)
+
+            val updatedNoteData = mapNoteToNoteData(noteToSave)
+
+            _uiState.value = NoteFormUiState.View(
+                noteData = updatedNoteData,
+                isLoading = false
+            )
+        }
+    }
+
+    private fun showDiscardDialog(show: Boolean) {
+        _uiState.update { currentState ->
+            if (currentState is NoteFormUiState.Edit) {
+                if (currentState.temporaryTitle == currentState.noteData.title &&
+                    currentState.temporaryContent == currentState.noteData.content
+                ) {
+                    NoteFormUiState.View(
+                        noteData = uiState.value.noteData,
+                        isLoading = false
                     )
-                }
-            }
-
-            is NoteFormAction.NoteTitleChanged -> {
-                _screenState.update {
-                    it.copy(
-                        temporaryNoteTitle = action.title
-                    )
-                }
-            }
-
-            NoteFormAction.ClickCloseButton -> {
-                if (screenState.value.temporaryNoteContent != screenState.value.noteContent || screenState.value.temporaryNoteTitle != screenState.value.noteTitle) {
-                    _screenState.update {
-                        it.copy(showDiscardChangesDialog = true)
-                    }
-                } else if (screenState.value.temporaryNoteContent.isEmpty() && screenState.value.temporaryNoteTitle.isEmpty()) {
-                    viewModelScope.launch {
-                        showLoading()
-                        noteRepository.deleteNote(noteId)
-                        hideLoading()
-                        eventChannel.send(NoteFormEvent.OnNoteDeleted)
-                    }
                 } else {
-                    viewModelScope.launch {
-                        eventChannel.send(NoteFormEvent.OnGoBackWithoutChanges)
-                    }
+                    currentState.copy(showDiscardChangesDialog = show)
                 }
-            }
 
-            NoteFormAction.ClickSaveButton -> {
-                viewModelScope.launch {
-                    showLoading()
-                    noteRepository.upsertNote(
-                        Note(
-                            id = noteId,
-                            title = screenState.value.temporaryNoteTitle,
-                            content = screenState.value.temporaryNoteContent,
-                            createdAt = screenState.value.noteCreated,
-                            lastEditedAt = Instant.fromEpochMilliseconds(
-                                Clock.System.now().toEpochMilliseconds()
-                            ).toString(),
-                        )
-                    )
-                    hideLoading()
-                    eventChannel.send(NoteFormEvent.OnNoteChangesSaved)
-                }
-            }
-
-            NoteFormAction.DiscardChanges -> {
-                viewModelScope.launch {
-                    eventChannel.send(NoteFormEvent.OnNoteChangesDiscard)
-                }
-            }
-
-            NoteFormAction.CloseDiscardChangesDialog -> {
-                _screenState.update {
-                    it.copy(showDiscardChangesDialog = false)
-                }
-            }
-
-            NoteFormAction.ChangeToEditMode -> {
-                _screenState.update {
-                    it.copy(
-                        mode = NoteFormMode.EDIT
-                    )
-                }
-            }
-
-            NoteFormAction.ChangeToReaderMode -> {
-                _screenState.update {
-                    it.copy(
-                        mode = if (screenState.value.mode == NoteFormMode.READER) NoteFormMode.VIEW
-                        else NoteFormMode.READER
-                    )
-                }
+            } else {
+                currentState
             }
         }
+    }
+
+    private fun discardChangesAndSwitchToViewMode() {
+        val currentEditState = _uiState.value as? NoteFormUiState.Edit ?: return
+
+        _uiState.value = NoteFormUiState.View(
+            noteData = currentEditState.noteData,
+            isLoading = false
+        )
     }
 }

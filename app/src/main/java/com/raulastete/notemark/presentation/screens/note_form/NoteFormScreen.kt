@@ -2,32 +2,23 @@ package com.raulastete.notemark.presentation.screens.note_form
 
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBackIosNew
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -46,8 +37,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.raulastete.notemark.R
 import com.raulastete.notemark.presentation.screens.note_form.components.DiscardChangesDialog
+import com.raulastete.notemark.presentation.screens.note_form.components.FormActions
 import com.raulastete.notemark.presentation.screens.note_form.components.FormMetadata
 import com.raulastete.notemark.presentation.screens.note_form.components.FormModeFabButton
+import com.raulastete.notemark.presentation.screens.note_form.components.FormNavigationIcon
+import com.raulastete.notemark.presentation.screens.note_form.components.FormTopBarTitle
 import com.raulastete.notemark.presentation.utils.DeviceMode
 import com.raulastete.notemark.presentation.utils.ObserveAsEvents
 import org.koin.androidx.compose.koinViewModel
@@ -58,12 +52,21 @@ fun NoteFormRoot(
     viewModel: NoteFormViewModel = koinViewModel(),
     navigateBack: () -> Unit
 ) {
-    val screenState by viewModel.screenState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(screenState.mode) {
+    fun onBack() {
+        if (uiState is NoteFormUiState.Reader) {
+            (context as Activity).requestedOrientation =
+                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
+        navigateBack()
+    }
+
+    fun setDeviceOrientation() {
         when {
-            screenState.mode == NoteFormMode.READER -> {
+            uiState is NoteFormUiState.Reader -> {
                 (context as Activity).requestedOrientation =
                     ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
             }
@@ -75,113 +78,81 @@ fun NoteFormRoot(
         }
     }
 
-    val focusRequester = remember { FocusRequester() }
+    fun requestFocusOnEditMode() {
+        if( uiState is NoteFormUiState.Edit) {
+            focusRequester.requestFocus()
+        }
+    }
+
+    BackHandler {
+        onBack()
+    }
+
+    ObserveAsEvents(viewModel.events) {
+        onBack()
+    }
+
+    LaunchedEffect(uiState) {
+        setDeviceOrientation()
+    }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        requestFocusOnEditMode()
     }
 
-    ObserveAsEvents(viewModel.events) { event ->
-        navigateBack()
-    }
-
-    when (screenState.mode) {
-        NoteFormMode.VIEW -> {
-            NoteFormViewMode(
-                state = screenState,
-                focusRequester = focusRequester,
-                navigateBack = navigateBack,
-                onAction = viewModel::onAction
-            )
-        }
-
-        NoteFormMode.EDIT -> {
-            NoteFormEditMode(
-                state = screenState,
-                focusRequester = focusRequester,
-                onAction = viewModel::onAction
-            )
-        }
-
-        NoteFormMode.READER -> {
-            NoteFormReaderMode(
-                state = screenState,
-                focusRequester = focusRequester,
-                onAction = viewModel::onAction
-            )
-        }
-
-    }
-
-    /*when (deviceMode) {
-        DeviceMode.PhonePortrait, DeviceMode.TabletPortrait -> {
-            when (screenState.mode) {
-                NoteFormMode.VIEW -> {
-                    NoteFormViewMode(
-                        state = screenState,
+    if(uiState is NoteFormUiState.InitialLoading) {
+        CircularProgressIndicator()
+    } else {
+        Box {
+            when (deviceMode) {
+                DeviceMode.PhonePortrait, DeviceMode.TabletPortrait -> {
+                    NoteFormPortraitScreen(
+                        state = uiState,
                         focusRequester = focusRequester,
-                        navigateBack = navigateBack,
+                        navigateBack = ::onBack,
                         onAction = viewModel::onAction
                     )
                 }
 
-                NoteFormMode.EDIT -> {
-                    NoteFormEditMode(
-                        state = screenState,
+                else -> {
+                    NoteFormLandscapeScreen(
+                        state = uiState,
                         focusRequester = focusRequester,
+                        navigateBack = ::onBack,
                         onAction = viewModel::onAction
                     )
                 }
+            }
 
-                NoteFormMode.READER -> {
-                    NoteFormReaderMode(
-                        state = screenState,
-                        focusRequester = focusRequester,
-                        onAction = viewModel::onAction
-                    )
+            if (uiState.isLoading) {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.3f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
+            }
 
+            if ((uiState as? NoteFormUiState.Edit)?.showDiscardChangesDialog == true) {
+                DiscardChangesDialog(
+                    onDiscard = {
+                        viewModel.onAction(NoteFormAction.ConfirmDiscardChanges)
+                    },
+                    onKeepEditing = {
+                        viewModel.onAction(NoteFormAction.CancelDiscardChanges)
+                    }
+                )
             }
         }
-
-        else -> {
-            NoteFormLandscapeScreen(
-                state = screenState,
-                focusRequester = focusRequester,
-                onAction = viewModel::onAction
-            )
-        }
-    }*/
-
-    if (screenState.isLoading) {
-        Box(
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.3f)),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
     }
-
-
-    if (screenState.showDiscardChangesDialog) {
-        DiscardChangesDialog(
-            onDiscard = {
-                viewModel.onAction(NoteFormAction.DiscardChanges)
-            },
-            onKeepEditing = {
-                viewModel.onAction(NoteFormAction.CloseDiscardChangesDialog)
-            }
-        )
-    }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NoteFormViewMode(
-    state: NoteFormState,
+fun NoteFormPortraitScreen(
+    state: NoteFormUiState,
     focusRequester: FocusRequester,
     navigateBack: () -> Unit,
     onAction: (NoteFormAction) -> Unit
@@ -194,371 +165,197 @@ fun NoteFormViewMode(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
                 title = {
-                    Text(
-                        stringResource(R.string.all_notes),
-                        style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    FormTopBarTitle(
+                        state = state
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = navigateBack) {
-                        Icon(
-                            Icons.Default.ArrowBackIosNew,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                },
-            )
-        },
-        floatingActionButton = {
-            FormModeFabButton(
-                noteFormMode = state.mode,
-                onClickEditMode = {
-                    onAction(NoteFormAction.ChangeToEditMode)
-                },
-                onClickReaderMode = {
-                    onAction(NoteFormAction.ChangeToReaderMode)
-                }
-            )
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) { innerPadding ->
-
-        Column(
-            Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .focusRequester(focusRequester),
-                text = state.temporaryNoteTitle,
-                style = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-            )
-
-            HorizontalDivider()
-
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                FormMetadata(
-                    title = stringResource(R.string.date_created_metadata),
-                    content = state.formattedNoteCreated,
-                    modifier = Modifier.weight(1f)
-                )
-
-                FormMetadata(
-                    title = stringResource(R.string.date_last_edited_metadata),
-                    content = state.formattedNoteUpdated,
-                    modifier = Modifier.weight(1f)
-                )
-
-            }
-
-            HorizontalDivider()
-
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                text = state.temporaryNoteContent,
-                style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NoteFormEditMode(
-    state: NoteFormState,
-    focusRequester: FocusRequester,
-    onAction: (NoteFormAction) -> Unit,
-) {
-
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant
-                ),
-                title = {
-
-                },
-                navigationIcon = {
-                    IconButton(onClick = {
-                        onAction(NoteFormAction.ClickCloseButton)
-                    }) {
-                        Icon(
-                            Icons.Default.Close,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    FormNavigationIcon(
+                        state = state,
+                        navigateBack = navigateBack,
+                        onAction = onAction
+                    )
                 },
                 actions = {
-                    TextButton(onClick = {
-                        onAction(NoteFormAction.ClickSaveButton)
-                    }) {
-                        Text(
-                            stringResource(R.string.save_note_button).uppercase(),
-                            style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
-                        )
-                    }
+                    FormActions(
+                        state = state,
+                        onAction = onAction
+                    )
                 }
             )
         },
         floatingActionButton = {
             FormModeFabButton(
-                noteFormMode = state.mode,
-                onClickEditMode = {
-                    onAction(NoteFormAction.ChangeToEditMode)
-                },
-                onClickReaderMode = {
-                    onAction(NoteFormAction.ChangeToReaderMode)
-                }
+                noteFormUiState = state,
+                onAction = onAction
             )
         },
         floatingActionButtonPosition = FabPosition.Center
-    ) { innerPadding ->
+    ) {
 
-        Column(
-            Modifier
+        NoteFormContent(
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-
-            BasicTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .focusRequester(focusRequester),
-                value = state.temporaryNoteTitle,
-                onValueChange = {
-                    onAction(NoteFormAction.NoteTitleChanged(it))
-                },
-                textStyle = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-                decorationBox = { innerTextField ->
-                    innerTextField()
-                },
-                cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
-            )
-
-            HorizontalDivider()
-
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 20.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-                FormMetadata(
-                    title = stringResource(R.string.date_created_metadata),
-                    content = state.formattedNoteCreated,
-                    modifier = Modifier.weight(1f)
-                )
-
-                FormMetadata(
-                    title = stringResource(R.string.date_last_edited_metadata),
-                    content = state.formattedNoteUpdated,
-                    modifier = Modifier.weight(1f)
-                )
-
-            }
-
-            HorizontalDivider()
-
-            BasicTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                value = state.temporaryNoteContent,
-                onValueChange = {
-                    onAction(NoteFormAction.NoteContentChanged(it))
-                },
-                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                decorationBox = { innerTextField ->
-                    if (state.temporaryNoteContent.isEmpty()) {
-                        Text(
-                            stringResource(R.string.note_content_hint),
-                            style = MaterialTheme.typography.bodyLarge.copy(
-                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                            )
-                        )
-                    }
-                    innerTextField()
-                },
-                cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
-            )
-        }
+                .padding(it),
+            state = state,
+            focusRequester = focusRequester,
+            onAction = onAction
+        )
     }
 }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun NoteFormReaderMode(
-    state: NoteFormState,
-    focusRequester: FocusRequester,
-    onAction: (NoteFormAction) -> Unit,
-) {
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.surfaceVariant,
-        floatingActionButton = {
-            FormModeFabButton(
-                noteFormMode = state.mode,
-                onClickEditMode = {
-                    onAction(NoteFormAction.ChangeToEditMode)
-                },
-                onClickReaderMode = {
-                    onAction(NoteFormAction.ChangeToReaderMode)
-                }
-            )
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) { innerPadding ->
-
-        Row(Modifier.fillMaxWidth()) {
-            Spacer(Modifier.weight(1f))
-            Column(
-                Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(0.7f)
-                    .padding(innerPadding),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                        .focusRequester(focusRequester),
-                    text = state.temporaryNoteTitle,
-                    style = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-                )
-
-                HorizontalDivider()
-
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 20.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-
-                    FormMetadata(
-                        title = stringResource(R.string.date_created_metadata),
-                        content = state.formattedNoteCreated,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    FormMetadata(
-                        title = stringResource(R.string.date_last_edited_metadata),
-                        content = state.formattedNoteUpdated,
-                        modifier = Modifier.weight(1f)
-                    )
-
-                }
-
-                HorizontalDivider()
-
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    text = state.temporaryNoteContent,
-                    style = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                )
-            }
-            Spacer(Modifier.weight(1f))
-        }
-    }
-}
-
 
 @Composable
 fun NoteFormLandscapeScreen(
-    state: NoteFormState,
+    state: NoteFormUiState,
     focusRequester: FocusRequester,
+    navigateBack: () -> Unit,
     onAction: (NoteFormAction) -> Unit
 ) {
-    Scaffold(containerColor = MaterialTheme.colorScheme.surfaceVariant) {
+
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        floatingActionButton = {
+            FormModeFabButton(
+                noteFormUiState = state,
+                onAction = onAction
+            )
+        },
+        floatingActionButtonPosition = FabPosition.Center
+    ) {
         Row(
             Modifier
                 .fillMaxSize()
                 .padding(it)
         ) {
-            Spacer(Modifier.weight(1f))
 
-            IconButton(onClick = {
-                onAction(NoteFormAction.ClickCloseButton)
-            }) {
-                Icon(
-                    Icons.Default.Close,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            Column(
-                Modifier
-                    .weight(8f)
+            Row(
+                Modifier.weight(2f),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                BasicTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
-                        .focusRequester(focusRequester),
-                    value = state.temporaryNoteTitle,
-                    onValueChange = {
-                        onAction(NoteFormAction.NoteTitleChanged(it))
-                    },
-                    textStyle = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.onSurface),
-                    decorationBox = { innerTextField ->
-                        innerTextField()
-                    },
-                    cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
+                FormNavigationIcon(
+                    state = state,
+                    navigateBack = navigateBack,
+                    onAction = onAction
                 )
-
-                HorizontalDivider(Modifier.height(24.dp))
-
-                BasicTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp, top = 8.dp),
-                    value = state.temporaryNoteContent,
-                    onValueChange = {
-                        onAction(NoteFormAction.NoteContentChanged(it))
-                    },
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
-                    decorationBox = { innerTextField ->
-                        innerTextField()
-                    },
-                    cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
-                )
+                FormTopBarTitle(state = state)
             }
 
-            Spacer(Modifier.width(24.dp))
+            NoteFormContent(
+                modifier = Modifier.weight(6f),
+                state = state,
+                focusRequester = focusRequester,
+                onAction = onAction
+            )
 
-            TextButton(onClick = {
-                onAction(NoteFormAction.ClickSaveButton)
-            }) {
-                Text(
-                    stringResource(R.string.save_note_button).uppercase(),
-                    style = MaterialTheme.typography.labelLarge.copy(color = MaterialTheme.colorScheme.primary)
-                )
-            }
-
-            Spacer(Modifier.width(24.dp))
+            FormActions(
+                modifier = Modifier.weight(2f),
+                state = state,
+                onAction = onAction
+            )
         }
+    }
+}
+
+@Composable
+fun NoteFormContent(
+    modifier: Modifier = Modifier,
+    state: NoteFormUiState,
+    focusRequester: FocusRequester? = null,
+    onAction: (NoteFormAction) -> Unit
+) {
+
+    val title = when (state) {
+        is NoteFormUiState.Edit -> state.temporaryTitle
+        else -> state.noteData.title
+    }
+
+    val content = when (state) {
+        is NoteFormUiState.Edit -> state.temporaryContent
+        else -> state.noteData.content
+    }
+
+    val contentIsEditable = state is NoteFormUiState.Edit
+
+    Column(modifier = modifier) {
+        BasicTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .then(
+                    if (focusRequester != null) {
+                        Modifier.focusRequester(focusRequester)
+                    } else {
+                        Modifier
+                    }
+                ),
+            value = title,
+            onValueChange = {
+                onAction(NoteFormAction.TitleChanged(it))
+            },
+            enabled = contentIsEditable,
+            textStyle = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.onSurface),
+            decorationBox = { innerTextField ->
+                if (title.isEmpty()) {
+                    Text(
+                        stringResource(R.string.note_title_hint),
+                        style = MaterialTheme.typography.displayMedium.copy(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                    )
+                }
+                innerTextField()
+            },
+            cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
+        )
+
+        HorizontalDivider()
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 20.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+
+            FormMetadata(
+                title = stringResource(R.string.date_created_metadata),
+                content = state.noteData.createdAtFormatted,
+                modifier = Modifier.weight(1f)
+            )
+
+            FormMetadata(
+                title = stringResource(R.string.date_last_edited_metadata),
+                content = state.noteData.updatedAtFormatted,
+                modifier = Modifier.weight(1f)
+            )
+
+        }
+
+        HorizontalDivider()
+
+        BasicTextField(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            value = content,
+            onValueChange = {
+                onAction(NoteFormAction.ContentChanged(it))
+            },
+            enabled = contentIsEditable,
+            textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurfaceVariant),
+            decorationBox = { innerTextField ->
+                if (content.isEmpty()) {
+                    Text(
+                        stringResource(R.string.note_content_hint),
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                        )
+                    )
+                }
+                innerTextField()
+            },
+            cursorBrush = SolidColor(value = MaterialTheme.colorScheme.primary)
+        )
     }
 }

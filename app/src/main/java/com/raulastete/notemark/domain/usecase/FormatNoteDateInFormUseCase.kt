@@ -16,14 +16,15 @@ class FormatNoteDateInFormUseCase(private val dispatcher: CoroutineDispatcher = 
         return withContext(dispatcher) {
             val instant = Instant.parse(isoString)
             val dateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
-            val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            val now = Clock.System.now()
 
             val day = dateTime.day
             val month = dateTime.month.name.take(3)
             val year = dateTime.year
 
+            val elapsedTime = now - instant
 
-            if (now.minute - dateTime.minute < 5) {
+            if (elapsedTime.inWholeMinutes <= 5) {
                 "Just now"
             } else {
                 "$day $month $year, ${dateTime.hour}:${dateTime.minute.toString().padStart(2, '0')}"
