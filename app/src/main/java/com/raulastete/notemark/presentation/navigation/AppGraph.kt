@@ -140,7 +140,8 @@ fun AppGraph(
                     },
                     navigateToLogin = {
                         navController.navigate(Destination.Login) {
-                            popUpTo(Destination.Login) { inclusive = true }
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
                         }
                     }
                 )

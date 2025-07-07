@@ -39,7 +39,6 @@ import com.raulastete.notemark.presentation.screens.login.components.LoginForm
 import com.raulastete.notemark.presentation.screens.login.components.LoginScreenHeader
 import com.raulastete.notemark.presentation.utils.DeviceMode
 import com.raulastete.notemark.presentation.utils.ObserveAsEvents
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -82,7 +81,6 @@ fun LoginRoot(
                         duration = SnackbarDuration.Short,
                         withDismissAction = true
                     )
-                    delay(1000)
                     navigateToHome()
                 }
             }
